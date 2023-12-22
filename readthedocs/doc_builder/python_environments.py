@@ -1,7 +1,6 @@
 """An abstraction over virtualenv and Conda environments."""
 
 import copy
-import itertools
 import os
 
 import structlog
@@ -12,7 +11,6 @@ from readthedocs.config import parse as parse_yaml
 from readthedocs.config.models import PythonInstall, PythonInstallRequirements
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.config import load_yaml_config
-from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.exceptions import UserFileNotFound
 from readthedocs.projects.models import Feature
 
@@ -70,15 +68,15 @@ class PythonEnvironment:
                     ','.join(install.extra_requirements)
                 )
             self.build_env.run(
-                self.venv_bin(filename='python'),
-                '-m',
-                'pip',
-                'install',
-                '--upgrade',
-                '--upgrade-strategy',
-                'eager',
-                '--no-cache-dir',
-                '{path}{extra_requirements}'.format(
+                self.venv_bin(filename="python"),
+                "-m",
+                "pip",
+                "install",
+                "--upgrade",
+                "--upgrade-strategy",
+                "only-if-needed",
+                "--no-cache-dir",
+                "{path}{extra_requirements}".format(
                     path=local_path,
                     extra_requirements=extra_req_param,
                 ),
@@ -136,12 +134,9 @@ class Virtualenv(PythonEnvironment):
         """
         cli_args = [
             '-mvirtualenv',
+            # Append the positional destination argument
+            "$READTHEDOCS_VIRTUALENV_PATH",
         ]
-        if self.config.python.use_system_site_packages:
-            cli_args.append('--system-site-packages')
-
-        # Append the positional destination argument
-        cli_args.append("$READTHEDOCS_VIRTUALENV_PATH")
 
         self.build_env.run(
             self.config.python_interpreter,
@@ -163,92 +158,37 @@ class Virtualenv(PythonEnvironment):
             '--no-cache-dir',
         ]
 
-        # Install latest pip and setuptools first,
-        # so it is used when installing the other requirements.
-        pip_version = self.project.get_feature_value(
-            Feature.DONT_INSTALL_LATEST_PIP,
-            # 20.3 uses the new resolver by default.
-            positive='pip<20.3',
-            negative='pip',
-        )
-        cmd = pip_install_cmd + [pip_version, 'setuptools<58.3.0']
+        self._install_latest_requirements(pip_install_cmd)
+
+    def _install_latest_requirements(self, pip_install_cmd):
+        """Install all the latest core requirements."""
+        # First, upgrade pip and setuptools to their latest versions
+        cmd = pip_install_cmd + ["pip", "setuptools"]
         self.build_env.run(
             *cmd,
             bin_path=self.venv_bin(),
             cwd=self.checkout_path,
         )
 
+        # Second, install all the latest core requirements
         requirements = []
 
-        # Unpin Pillow on newer Python versions to avoid re-compiling
-        # https://pillow.readthedocs.io/en/stable/installation.html#python-support
-        if self.config.python.version in ("2.7", "3.4", "3.5", "3.6", "3.7"):
-            requirements.append("pillow==5.4.1")
-        else:
-            requirements.append("pillow")
-
-        requirements.extend(
-            [
-                "mock==1.0.1",
-                "alabaster>=0.7,<0.8,!=0.7.5",
-                "commonmark==0.9.1",
-                "recommonmark==0.5.0",
-            ]
-        )
-
-        if self.config.doctype == 'mkdocs':
-            requirements.append(
-                self.project.get_feature_value(
-                    Feature.DEFAULT_TO_MKDOCS_0_17_3,
-                    positive='mkdocs==0.17.3',
-                    negative=self.project.get_feature_value(
-                        Feature.USE_MKDOCS_LATEST,
-                        positive='mkdocs<1.1',
-                        negative='mkdocs',
-                    ),
-                ),
-            )
+        if self.config.doctype == "mkdocs":
+            requirements.append("mkdocs")
         else:
             requirements.extend(
                 [
-                    self.project.get_feature_value(
-                        Feature.USE_SPHINX_LATEST,
-                        positive="sphinx",
-                        negative="sphinx<2",
-                    ),
-                    # If defaulting to Sphinx 2+, we need to push the latest theme
-                    # release as well. `<0.5.0` is not compatible with Sphinx 2+
-                    self.project.get_feature_value(
-                        Feature.USE_SPHINX_LATEST,
-                        positive="sphinx-rtd-theme",
-                        negative="sphinx-rtd-theme<0.5",
-                    ),
-                    self.project.get_feature_value(
-                        Feature.USE_SPHINX_RTD_EXT_LATEST,
-                        positive="readthedocs-sphinx-ext",
-                        negative="readthedocs-sphinx-ext<2.3",
-                    ),
+                    "sphinx",
+                    "readthedocs-sphinx-ext",
                 ]
             )
-            if not self.project.has_feature(Feature.USE_SPHINX_LATEST):
-                requirements.extend(["jinja2<3.1.0"])
 
         cmd = copy.copy(pip_install_cmd)
-        if self.config.python.use_system_site_packages:
-            # Other code expects sphinx-build to be installed inside the
-            # virtualenv.  Using the -I option makes sure it gets installed
-            # even if it is already installed system-wide (and
-            # --system-site-packages is used)
-            cmd.append('-I')
-            # If this flag is present,
-            # we need to cap setuptools again.
-            # See https://github.com/readthedocs/readthedocs.org/issues/8775
-            requirements.append('setuptools<58.3.0')
         cmd.extend(requirements)
         self.build_env.run(
             *cmd,
             bin_path=self.venv_bin(),
-            cwd=self.checkout_path  # noqa - no comma here in py27 :/
+            cwd=self.checkout_path,
         )
 
     def install_requirements_file(self, install):
@@ -259,27 +199,6 @@ class Virtualenv(PythonEnvironment):
         :type install: readthedocs.config.models.PythonInstallRequirements
         """
         requirements_file_path = install.requirements
-        if requirements_file_path is None:
-            # This only happens when the config file is from v1.
-            # We try to find a requirements file.
-            builder_class = get_builder_class(self.config.doctype)
-            docs_dir = (
-                builder_class(
-                    build_env=self.build_env,
-                    python_env=self,
-                ).docs_dir()
-            )
-            paths = [docs_dir, '']
-            req_files = ['pip_requirements.txt', 'requirements.txt']
-            for path, req_file in itertools.product(paths, req_files):
-                test_path = os.path.join(self.checkout_path, path, req_file)
-                if os.path.exists(test_path):
-                    requirements_file_path = os.path.relpath(
-                        test_path,
-                        self.checkout_path,
-                    )
-                    break
-
         if requirements_file_path:
             args = [
                 self.venv_bin(filename='python'),
@@ -300,22 +219,6 @@ class Virtualenv(PythonEnvironment):
                 cwd=self.checkout_path,
                 bin_path=self.venv_bin(),
             )
-
-    def list_packages_installed(self):
-        """List packages installed in pip."""
-        args = [
-            self.venv_bin(filename='python'),
-            '-m',
-            'pip',
-            'list',
-            # Include pre-release versions.
-            '--pre',
-        ]
-        self.build_env.run(
-            *args,
-            cwd=self.checkout_path,
-            bin_path=self.venv_bin(),
-        )
 
 
 class Conda(PythonEnvironment):
@@ -340,33 +243,9 @@ class Conda(PythonEnvironment):
 
         See https://github.com/QuantStack/mamba
         """
-        # Config file using ``build.tools.python``
-        if self.config.using_build_tools:
-            return self.config.python_interpreter
-        return 'conda'
-
-    def _update_conda_startup(self):
-        """
-        Update ``conda`` before use it for the first time.
-
-        This makes the Docker image to use the latest version of ``conda``
-        independently the version of Miniconda that it has installed.
-        """
-        self.build_env.run(
-            'conda',
-            'update',
-            '--yes',
-            '--quiet',
-            '--name=base',
-            '--channel=defaults',
-            'conda',
-            cwd=self.checkout_path,
-        )
+        return self.config.python_interpreter
 
     def setup_base(self):
-        if self.project.has_feature(Feature.UPDATE_CONDA_STARTUP):
-            self._update_conda_startup()
-
         if self.project.has_feature(Feature.CONDA_APPEND_CORE_REQUIREMENTS):
             self._append_core_requirements()
             self._show_environment_yaml()
@@ -470,21 +349,16 @@ class Conda(PythonEnvironment):
 
     def _get_core_requirements(self):
         # Use conda for requirements it packages
-        conda_requirements = [
-            'mock',
-            'pillow',
-        ]
+        conda_requirements = []
 
         # Install pip-only things.
-        pip_requirements = [
-            'recommonmark',
-        ]
+        pip_requirements = []
 
-        if self.config.doctype == 'mkdocs':
-            pip_requirements.append('mkdocs')
+        if self.config.doctype == "mkdocs":
+            pip_requirements.append("mkdocs")
         else:
-            pip_requirements.append('readthedocs-sphinx-ext')
-            conda_requirements.extend(['sphinx', 'sphinx_rtd_theme'])
+            pip_requirements.append("readthedocs-sphinx-ext")
+            conda_requirements.extend(["sphinx"])
 
         return pip_requirements, conda_requirements
 
@@ -536,17 +410,3 @@ class Conda(PythonEnvironment):
         # as the conda environment was created by using the ``environment.yml``
         # defined by the user, there is nothing to update at this point
         pass
-
-    def list_packages_installed(self):
-        """List packages installed in conda."""
-        args = [
-            self.conda_bin_name(),
-            'list',
-            '--name',
-            self.version.slug,
-        ]
-        self.build_env.run(
-            *args,
-            cwd=self.checkout_path,
-            bin_path=self.venv_bin(),
-        )

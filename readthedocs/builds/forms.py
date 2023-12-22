@@ -22,8 +22,6 @@ from readthedocs.builds.models import (
     Version,
     VersionAutomationRule,
 )
-from readthedocs.builds.signals import version_changed
-from readthedocs.core.utils import trigger_build
 
 
 class VersionForm(forms.ModelForm):
@@ -67,6 +65,9 @@ class VersionForm(forms.ModelForm):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(*field_sets)
+        # We need to know if the version was active before the update.
+        # We use this value in the save method.
+        self._was_active = self.instance.active if self.instance else False
 
     def clean_active(self):
         active = self.cleaned_data['active']
@@ -86,15 +87,13 @@ class VersionForm(forms.ModelForm):
 
     def save(self, commit=True):
         obj = super().save(commit=commit)
-        if obj.active and not obj.built and not obj.uploaded:
-            trigger_build(project=obj.project, version=obj)
-        if self.has_changed():
-            version_changed.send(sender=self.__class__, version=obj)
+        obj.post_save(was_active=self._was_active)
         return obj
 
 
 class RegexAutomationRuleForm(forms.ModelForm):
 
+    project = forms.CharField(widget=forms.HiddenInput(), required=False)
     match_arg = forms.CharField(
         label='Custom match',
         help_text=_(textwrap.dedent(
@@ -111,11 +110,12 @@ class RegexAutomationRuleForm(forms.ModelForm):
     class Meta:
         model = RegexAutomationRule
         fields = [
-            'description',
-            'predefined_match_arg',
-            'match_arg',
-            'version_type',
-            'action',
+            "project",
+            "description",
+            "predefined_match_arg",
+            "match_arg",
+            "version_type",
+            "action",
         ]
         # Don't pollute the UI with help texts
         help_texts = {
@@ -176,19 +176,5 @@ class RegexAutomationRuleForm(forms.ModelForm):
             )
         return match_arg
 
-    def save(self, commit=True):
-        if self.instance.pk:
-            rule = super().save(commit=commit)
-        else:
-            rule = RegexAutomationRule.objects.add_rule(
-                project=self.project,
-                description=self.cleaned_data['description'],
-                match_arg=self.cleaned_data['match_arg'],
-                predefined_match_arg=self.cleaned_data['predefined_match_arg'],
-                version_type=self.cleaned_data['version_type'],
-                action=self.cleaned_data['action'],
-            )
-        if not rule.description:
-            rule.description = rule.get_description()
-            rule.save()
-        return rule
+    def clean_project(self):
+        return self.project

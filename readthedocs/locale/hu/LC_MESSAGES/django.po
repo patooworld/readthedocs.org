@@ -8,10 +8,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-07 10:40+0000\n"
+"POT-Creation-Date: 2023-12-05 16:29+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Laszlo Matusek <lmatusek@gmail.com>, 2021\n"
-"Language-Team: Hungarian (http://www.transifex.com/readthedocs/readthedocs/"
+"Language-Team: Hungarian (http://app.transifex.com/readthedocs/readthedocs/"
 "language/hu/)\n"
 "Language: hu\n"
 "MIME-Version: 1.0\n"
@@ -19,8 +19,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: analytics/models.py:69 builds/models.py:626 projects/models.py:1408
-#: search/models.py:28 sphinx_domains/models.py:33 templates/base.html:262
+#: analytics/models.py:69 builds/models.py:726 projects/models.py:1531
+#: search/models.py:28 templates/base.html:262
 msgid "Version"
 msgstr "Verzió"
 
@@ -34,6 +34,18 @@ msgstr ""
 
 #: analytics/models.py:88
 msgid "HTTP status code"
+msgstr ""
+
+#: api/v2/models.py:43
+msgid "Project that this API key grants access to"
+msgstr ""
+
+#: api/v2/models.py:49
+msgid "Build API key"
+msgstr ""
+
+#: api/v2/models.py:50
+msgid "Build API keys"
 msgstr ""
 
 #: api/v2/templates/restapi/footer.html:18
@@ -61,7 +73,7 @@ msgstr ""
 msgid "Project Home"
 msgstr ""
 
-#: api/v2/templates/restapi/footer.html:72 builds/apps.py:12
+#: api/v2/templates/restapi/footer.html:72 builds/apps.py:13
 #: templates/core/project_bar_base.html:49
 msgid "Builds"
 msgstr "Építések"
@@ -113,22 +125,22 @@ msgstr ""
 msgid "Privacy Policy"
 msgstr "Adatvédelmi Szabályzat"
 
-#: api/v3/serializers.py:496
+#: api/v3/serializers.py:501
 #, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
 msgstr ""
 
-#: api/v3/serializers.py:500
+#: api/v3/serializers.py:505
 #, python-brace-format
 msgid "Project with slug \"{0}\" already exists."
 msgstr ""
 
-#: api/v3/serializers.py:706
+#: api/v3/serializers.py:728
 #, python-brace-format
 msgid "Project with {slug_name}={value} is not valid as subproject"
 msgstr ""
 
-#: api/v3/serializers.py:714 projects/forms.py:465
+#: api/v3/serializers.py:736 projects/forms.py:519
 msgid "A subproject with this alias already exists"
 msgstr ""
 
@@ -154,8 +166,8 @@ msgstr ""
 msgid "Log out"
 msgstr ""
 
-#: audit/models.py:91 organizations/views/private.py:104
-#: organizations/views/private.py:169 projects/views/private.py:475
+#: audit/models.py:91 organizations/views/private.py:148
+#: organizations/views/private.py:213 projects/views/private.py:457
 msgid "Invitation sent"
 msgstr ""
 
@@ -171,8 +183,8 @@ msgstr ""
 msgid "Invitation declined"
 msgstr ""
 
-#: audit/models.py:116 core/models.py:21 gold/models.py:35
-#: projects/models.py:129
+#: audit/models.py:116 core/models.py:21 gold/models.py:33
+#: projects/models.py:212
 msgid "User"
 msgstr "Felhasználó"
 
@@ -180,12 +192,12 @@ msgstr "Felhasználó"
 msgid "User ID"
 msgstr ""
 
-#: audit/models.py:129 core/forms.py:55
+#: audit/models.py:129 core/forms.py:78
 msgid "Username"
 msgstr "Felhasználónév"
 
-#: audit/models.py:138 builds/models.py:110 builds/models.py:620
-#: projects/models.py:1402 redirects/models.py:57
+#: audit/models.py:138 builds/models.py:109 builds/models.py:720
+#: organizations/filters.py:134 projects/models.py:1525 redirects/models.py:56
 msgid "Project"
 msgstr "projekt"
 
@@ -197,7 +209,7 @@ msgstr ""
 msgid "Project slug"
 msgstr ""
 
-#: audit/models.py:160 oauth/models.py:122 subscriptions/models.py:175
+#: audit/models.py:160 oauth/models.py:120 organizations/filters.py:98
 msgid "Organization"
 msgstr "Szervezet"
 
@@ -209,7 +221,7 @@ msgstr ""
 msgid "Organization slug"
 msgstr ""
 
-#: audit/models.py:180 builds/models.py:1130
+#: audit/models.py:180 builds/models.py:1267
 msgid "Action"
 msgstr ""
 
@@ -235,11 +247,11 @@ msgid ""
 "entry."
 msgstr ""
 
-#: audit/models.py:259
+#: audit/models.py:258
 msgid "shared link"
 msgstr ""
 
-#: audit/models.py:260
+#: audit/models.py:259
 msgid "shared password"
 msgstr ""
 
@@ -282,7 +294,7 @@ msgstr ""
 #: audit/templates/audit/list_logs.html:55
 #: templates/core/build_list_detailed.html:21
 #: templates/core/project_list_detailed.html:26
-#: templates/projects/integration_webhook_detail.html:91
+#: templates/projects/integration_webhook_detail.html:116
 #: templates/projects/project_dashboard_base.html:74
 #: templates/projects/webhook_form.html:55
 #, python-format
@@ -332,120 +344,133 @@ msgstr ""
 msgid "No activity logged yet"
 msgstr ""
 
-#: builds/constants.py:15
+#: builds/constants.py:18
 msgid "Triggered"
 msgstr "Triggerelt"
 
-#: builds/constants.py:16
+#: builds/constants.py:19
 msgid "Cloning"
 msgstr "Klónozás"
 
-#: builds/constants.py:17
+#: builds/constants.py:20
 msgid "Installing"
 msgstr "Telepítés"
 
-#: builds/constants.py:18
+#: builds/constants.py:21
 msgid "Building"
 msgstr "Építés"
 
-#: builds/constants.py:19
+#: builds/constants.py:22
 msgid "Uploading"
 msgstr ""
 
-#: builds/constants.py:20
+#: builds/constants.py:23
 msgid "Finished"
 msgstr "Befejezve"
 
-#: builds/constants.py:21 templates/core/build_list_detailed.html:7
+#: builds/constants.py:24 templates/core/build_list_detailed.html:7
 msgid "Cancelled"
 msgstr ""
 
-#: builds/constants.py:30
+#: builds/constants.py:33
 msgid "HTML"
 msgstr "HTML"
 
-#: builds/constants.py:31
+#: builds/constants.py:34
 msgid "PDF"
 msgstr "PDF"
 
-#: builds/constants.py:32
+#: builds/constants.py:35
 msgid "Epub"
 msgstr "Epub"
 
-#: builds/constants.py:36
+#: builds/constants.py:39
 msgid "Manpage"
 msgstr "Manpage"
 
-#: builds/constants.py:37
+#: builds/constants.py:40
 msgid "Dash"
 msgstr "Gondolatjel"
 
-#: builds/constants.py:46
+#: builds/constants.py:49
 msgid "External"
 msgstr ""
 
-#: builds/constants.py:49
+#: builds/constants.py:52
 msgid "Branch"
 msgstr "Elágazás"
 
-#: builds/constants.py:51
+#: builds/constants.py:54
 msgid "Tag"
 msgstr "Címke"
 
-#: builds/constants.py:53 projects/constants.py:402
+#: builds/constants.py:56 projects/constants.py:414
 msgid "Unknown"
 msgstr "Ismeretlen"
 
-#: builds/constants.py:64
+#: builds/constants.py:67
 msgid "Open"
 msgstr ""
 
-#: builds/constants.py:65
+#: builds/constants.py:68
 msgid "Closed"
 msgstr ""
 
-#: builds/constants.py:132
+#: builds/constants.py:137
 msgid "Any version"
 msgstr ""
 
-#: builds/constants.py:133
+#: builds/constants.py:138
 msgid "SemVer versions"
 msgstr ""
 
-#: builds/constants.py:134
+#: builds/constants.py:139
 msgid "Custom match"
 msgstr ""
 
-#: builds/filters.py:18 builds/models.py:149 redirects/models.py:23
+#: builds/filters.py:26 builds/models.py:152 redirects/models.py:23
 msgid "Active"
 msgstr "Aktív"
 
-#: builds/filters.py:19
-msgid "Build finished"
+#: builds/filters.py:27
+msgid "Build successful"
 msgstr ""
 
-#: builds/filters.py:20 projects/models.py:1527
+#: builds/filters.py:28 projects/models.py:1631
 #: templates/builds/build_detail.html:143
 msgid "Build failed"
 msgstr "Építés sikertelen"
 
-#: builds/filters.py:26 builds/models.py:151 builds/models.py:642
+#: builds/filters.py:34
+msgid "Normal"
+msgstr ""
+
+#: builds/filters.py:35
+msgid "Pull/merge request"
+msgstr ""
+
+#: builds/filters.py:41 builds/models.py:154 builds/models.py:742
 msgid "State"
 msgstr "Állapot"
 
-#: builds/filters.py:28 projects/filters.py:146 projects/filters.py:156
+#: builds/filters.py:43 builds/filters.py:49 projects/filters.py:183
+#: projects/filters.py:193
 msgid "Any"
 msgstr ""
 
-#: builds/forms.py:45
+#: builds/filters.py:47 builds/models.py:114 builds/models.py:732
+msgid "Type"
+msgstr "típus"
+
+#: builds/forms.py:43
 msgid "States"
 msgstr ""
 
-#: builds/forms.py:54 projects/filters.py:144
+#: builds/forms.py:52 projects/filters.py:181
 msgid "Privacy"
 msgstr ""
 
-#: builds/forms.py:75
+#: builds/forms.py:76
 #, python-brace-format
 msgid "{version} is the default version of the project, it should be active."
 msgstr "A projekt alapértelmezett verziója {version} lenne az aktív verzió."
@@ -458,268 +483,299 @@ msgstr ""
 msgid "Invalid Python regular expression."
 msgstr ""
 
-#: builds/models.py:98 projects/models.py:1490 projects/models.py:1658
+#: builds/models.py:97 projects/models.py:1594 projects/models.py:1759
 msgid "created"
 msgstr ""
 
-#: builds/models.py:103 projects/models.py:1495
+#: builds/models.py:102 projects/models.py:1599
 msgid "modified"
 msgstr ""
 
-#: builds/models.py:115 builds/models.py:632 sphinx_domains/models.py:59
-#: subscriptions/models.py:134
-msgid "Type"
-msgstr "típus"
-
-#: builds/models.py:129
+#: builds/models.py:128
 msgid "Identifier"
 msgstr "Azonosító"
 
-#: builds/models.py:136
+#: builds/models.py:135
 msgid "Verbose Name"
 msgstr "Bővített név"
 
-#: builds/models.py:143 oauth/models.py:32 organizations/models.py:52
-#: projects/models.py:134 subscriptions/models.py:35
+#: builds/models.py:142 oauth/models.py:32 organizations/models.py:48
+#: projects/models.py:217
 msgid "Slug"
 msgstr "Slug"
 
-#: builds/models.py:148
+#: builds/models.py:150
 msgid "Supported"
 msgstr "Támogatott"
 
-#: builds/models.py:156
+#: builds/models.py:159
 msgid "State of the PR/MR associated to this version."
 msgstr ""
 
-#: builds/models.py:158
+#: builds/models.py:161
 msgid "Built"
 msgstr "Készült"
 
-#: builds/models.py:159
+#: builds/models.py:166
 msgid "Uploaded"
 msgstr "Feltötlve"
 
-#: builds/models.py:161 projects/models.py:410
+#: builds/models.py:169 projects/models.py:469
 msgid "Privacy Level"
 msgstr "Adatvédelmi szint"
 
-#: builds/models.py:165
+#: builds/models.py:173
 msgid "Level of privacy for this Version."
 msgstr "A verzió adatvédelmi szintje."
 
-#: builds/models.py:168
+#: builds/models.py:176
 msgid "Hidden"
 msgstr ""
 
-#: builds/models.py:170
+#: builds/models.py:178
 msgid "Hide this version from the version (flyout) menu and search results?"
 msgstr ""
 
-#: builds/models.py:172
+#: builds/models.py:180
 msgid "Machine Created"
 msgstr "Gépi készítésű"
 
-#: builds/models.py:175
+#: builds/models.py:183
 msgid "Has PDF"
 msgstr ""
 
-#: builds/models.py:176
+#: builds/models.py:184
 msgid "Has ePub"
 msgstr ""
 
-#: builds/models.py:177
+#: builds/models.py:185
 msgid "Has HTML Zip"
 msgstr ""
 
-#: builds/models.py:180 projects/models.py:206
+#: builds/models.py:188 projects/models.py:306 projects/models.py:566
 msgid "Documentation type"
 msgstr "Dokumentáció típusa"
 
-#: builds/models.py:185
+#: builds/models.py:193
 msgid "Type of documentation the version was built with."
 msgstr ""
 
-#: builds/models.py:201
+#: builds/models.py:198
+msgid "Data generated at build time by the doctool (`readthedocs-build.yaml`)."
+msgstr ""
+
+#: builds/models.py:205
+msgid "Inject new addons js library for this version"
+msgstr ""
+
+#: builds/models.py:223
 #, python-brace-format
 msgid "Version {version} of {project} ({pk})"
 msgstr " {project} ({pk}) projekt {version} verziójának megtekintése "
 
-#: builds/models.py:654
+#: builds/models.py:754
 msgid "Status"
 msgstr ""
 
-#: builds/models.py:661 integrations/models.py:147
+#: builds/models.py:761 integrations/models.py:148
 msgid "Date"
 msgstr "Dátum"
 
-#: builds/models.py:662
+#: builds/models.py:762
 msgid "Success"
 msgstr "Sikeres"
 
-#: builds/models.py:667
+#: builds/models.py:767
 msgid "Setup"
 msgstr "Beállítás"
 
-#: builds/models.py:668
+#: builds/models.py:768
 msgid "Setup error"
 msgstr "Beállítási hiba"
 
-#: builds/models.py:669
+#: builds/models.py:769
 msgid "Output"
 msgstr "Kimenet"
 
-#: builds/models.py:670 templates/builds/build_detail.html:224
+#: builds/models.py:770 templates/builds/build_detail.html:239
 msgid "Error"
 msgstr "Hiba"
 
-#: builds/models.py:671
+#: builds/models.py:771
 msgid "Exit code"
 msgstr "Kilépési kód"
 
-#: builds/models.py:676 projects/models.py:1419 sphinx_domains/models.py:43
+#: builds/models.py:776 projects/models.py:1542
 msgid "Commit"
 msgstr "Megerősít"
 
-#: builds/models.py:682
+#: builds/models.py:782
 msgid "Version slug"
 msgstr ""
 
-#: builds/models.py:688
+#: builds/models.py:788
 msgid "Version name"
 msgstr ""
 
-#: builds/models.py:694 builds/models.py:1143
+#: builds/models.py:794 builds/models.py:1280
 msgid "Version type"
 msgstr ""
 
-#: builds/models.py:701
+#: builds/models.py:801
 msgid "Configuration used in the build"
 msgstr "A build-hez használt konfiguráció"
 
-#: builds/models.py:706
+#: builds/models.py:806
+msgid "Custom build configuration file path used in this build"
+msgstr ""
+
+#: builds/models.py:814
 msgid "Build Length"
 msgstr "Build hossza"
 
-#: builds/models.py:709
+#: builds/models.py:817
 msgid "Builder"
 msgstr "Builder"
 
-#: builds/models.py:716
+#: builds/models.py:824
 msgid "Cold Storage"
 msgstr "Hűtőház"
 
-#: builds/models.py:722
+#: builds/models.py:830
 msgid "Celery task id"
 msgstr ""
 
-#: builds/models.py:833
+#: builds/models.py:944
 #, python-brace-format
 msgid "Build {project} for {usernames} ({pk})"
 msgstr "Build {project} a következő felhasználóknak: {usernames} ({pk})"
 
-#: builds/models.py:1041
+#: builds/models.py:1177
 msgid "Build"
 msgstr "Build"
 
-#: builds/models.py:1046
+#: builds/models.py:1182
 msgid "Command"
 msgstr "Parancs"
 
-#: builds/models.py:1047 builds/models.py:1107 oauth/models.py:135
-#: organizations/models.py:66 projects/models.py:136 subscriptions/models.py:30
-#: subscriptions/models.py:137 templates/core/project_details.html:78
+#: builds/models.py:1183 builds/models.py:1244 oauth/models.py:133
+#: organizations/models.py:62 projects/models.py:219
+#: templates/core/project_details.html:78
 msgid "Description"
 msgstr "Leírás"
 
-#: builds/models.py:1048
+#: builds/models.py:1184
 msgid "Command output"
 msgstr "Parancs kimenete"
 
-#: builds/models.py:1049
+#: builds/models.py:1185
 msgid "Command exit code"
 msgstr "Parancs kilépési kódja"
 
-#: builds/models.py:1051
+#: builds/models.py:1187
 msgid "Start time"
 msgstr "Kezdés"
 
-#: builds/models.py:1052
+#: builds/models.py:1188
 msgid "End time"
 msgstr "Befejezés"
 
-#: builds/models.py:1062
+#: builds/models.py:1198
 #, python-brace-format
 msgid "Build command {pk} for build {build}"
 msgstr "Build parancs {pk}  {build} buildhez"
 
-#: builds/models.py:1086
+#: builds/models.py:1222
 msgid "Activate version"
 msgstr ""
 
-#: builds/models.py:1087
+#: builds/models.py:1223
 msgid "Hide version"
 msgstr ""
 
-#: builds/models.py:1088
+#: builds/models.py:1224
 msgid "Make version public"
 msgstr ""
 
-#: builds/models.py:1089
+#: builds/models.py:1225
 msgid "Make version private"
 msgstr ""
 
-#: builds/models.py:1090
+#: builds/models.py:1226
 msgid "Set version as default"
 msgstr ""
 
-#: builds/models.py:1091
-msgid "Delete version (on branch/tag deletion)"
+#: builds/models.py:1227
+msgid "Delete version"
 msgstr ""
 
-#: builds/models.py:1103
+#: builds/models.py:1239
 msgid "Rule priority"
 msgstr ""
 
-#: builds/models.py:1104
+#: builds/models.py:1240
 msgid "A lower number (0) means a higher priority"
 msgstr ""
 
-#: builds/models.py:1113
+#: builds/models.py:1250
 msgid "Match argument"
 msgstr ""
 
-#: builds/models.py:1114
+#: builds/models.py:1251
 msgid "Value used for the rule to match the version"
 msgstr ""
 
-#: builds/models.py:1118
+#: builds/models.py:1255
 msgid "Predefined match argument"
 msgstr ""
 
-#: builds/models.py:1120
+#: builds/models.py:1257
 msgid ""
 "Match argument defined by us, it is used if is not None, otherwise match_arg "
 "will be used."
 msgstr ""
 
-#: builds/models.py:1131
+#: builds/models.py:1268
 msgid "Action to apply to matching versions"
 msgstr ""
 
-#: builds/models.py:1136
+#: builds/models.py:1273
 msgid "Action argument"
 msgstr ""
 
-#: builds/models.py:1137
+#: builds/models.py:1274
 msgid "Value used for the action to perfom an operation"
 msgstr ""
 
-#: builds/models.py:1144
+#: builds/models.py:1281
 msgid "Type of version the rule should be applied to"
 msgstr ""
 
-#: builds/models.py:1368
+#: builds/models.py:1552
+msgid "Version activated"
+msgstr ""
+
+#: builds/models.py:1553
+msgid "Version hidden"
+msgstr ""
+
+#: builds/models.py:1555
+msgid "Version set to public privacy"
+msgstr ""
+
+#: builds/models.py:1558
+msgid "Version set to private privacy"
+msgstr ""
+
+#: builds/models.py:1560
+msgid "Version set as default"
+msgstr ""
+
+#: builds/models.py:1561
+msgid "Version deleted"
+msgstr ""
+
+#: builds/models.py:1566
 msgid "Matched rule"
 msgstr ""
 
@@ -749,19 +805,38 @@ msgstr "felépített projekt"
 msgid "has project with recent builds"
 msgstr "legutóbb épített projektek"
 
-#: core/forms.py:18
+#: core/forms.py:19
 msgid "First name"
 msgstr "Keresztnév"
 
-#: core/forms.py:19
+#: core/forms.py:20
 msgid "Last name"
 msgstr "Vezetéknév"
 
-#: core/forms.py:56
+#: core/forms.py:46
+msgid "User settings"
+msgstr ""
+
+#: core/forms.py:50
+msgid "Email settings"
+msgstr ""
+
+#: core/forms.py:55
+#: organizations/templates/organizations/admin/organization_edit.html:15
+#: projects/forms.py:292 redirects/templates/redirects/redirect_form.html:80
+#: templates/builds/regexautomationrule_form.html:28
+#: templates/projects/environmentvariable_form.html:20
+#: templates/projects/project_edit.html:22
+#: templates/projects/project_version_submit.html:4
+#: templates/projects/webhook_form.html:38
+msgid "Save"
+msgstr ""
+
+#: core/forms.py:79
 msgid "Please type your username to confirm."
 msgstr "Kérem gépelje be felhasználónevét megerősítésül"
 
-#: core/forms.py:67
+#: core/forms.py:90
 msgid "Username does not match!"
 msgstr "Felhasználónév nem egyezik!"
 
@@ -797,90 +872,53 @@ msgstr "Fehérlistázott"
 msgid "Banned"
 msgstr "Kitiltott"
 
-#: core/models.py:51
+#: core/models.py:50
+msgid "Opt-out from email about 'Config file deprecation'"
+msgstr ""
+
+#: core/models.py:57
+msgid "Opt-out from email about '\"build.image\" config key deprecation'"
+msgstr ""
+
+#: core/models.py:66
 #, python-format
 msgid "%(username)s's profile"
 msgstr "%(username)sprofilja"
 
-#: core/templates/core/dns-404.html:6
-msgid "Maze Found - Invalid Host"
-msgstr "Megtévesztő találat - Érvénytelen host"
-
-#: core/templates/core/dns-404.html:20
-msgid "404 - Invalid Host"
-msgstr "404 - Érvénytelen host"
-
-#: core/templates/core/dns-404.html:21
-#, python-format
-msgid "The host \"%(host)s\" is unknown to Read the Docs"
-msgstr "A \"%(host)s\" ismeretlen a  Read the Docs számára."
-
-#: core/templates/core/dns-404.html:25
-#, python-format
-msgid ""
-"If you control this domain and believe this is in error, please review our "
-"<a href=\"%(docsurl)s\">custom domain documentation</a>. In the past, we "
-"allowed custom domains to point to us without configuring the domain in the "
-"Read the Docs dashboard and we attempted to intelligently guess the correct "
-"project based on DNS settings. Now, we believe that explicit is better than "
-"implicit. Below are some steps to help you get your domain working again:"
-msgstr ""
-"Ha te irányítod ezt a domaint, és úgy gondolod, hogy ez hibás, kérjük, "
-"olvassa el az <a href=\"%(docsurl)s\">egyéni domainekre vonatkozó "
-"dokumentációt</a>. Korábban megengedtük, hogy az egyéni tartományok ránk "
-"mutassanak, anélkül, hogy konfigurálnánk a tartományt a Dokumentumok "
-"olvasása irányítópulton, és megpróbáltuk intelligensen kitalálni a helyes "
-"projektet a DNS-beállítások alapján. Most úgy gondoljuk, hogy jobb ezt "
-"beállítani, mint kikövetkeztetni. Az alábbiakban bemutatunk néhány lépést, "
-"amelyek segítenek a domain újbóli működésében: "
-
-#: core/templates/core/dns-404.html:38
-msgid "Ensure you have a CNAME record pointing to <code>readthedocs.io</code>"
-msgstr ""
-"Ellenőrizze, hogy CNAME rekord a <code>readthedocs.io</code> domainre mutat."
-
-#: core/templates/core/dns-404.html:39
-msgid ""
-"Add your desired domain in the Read the Docs dashboard for your project "
-"(under Your Project &gt;&gt; Admin &gt;&gt; Domains)"
-msgstr ""
-"Adja hozzá a projektjéhez a használni kívánt domaint a Read the Docs "
-"írányítópultján.  (Saját projekt &gt;&gt; Adminisztráció &gt;&gt; Domainek)"
-
-#: doc_builder/director.py:66
+#: doc_builder/director.py:81
 #, python-brace-format
 msgid "Repository type \"{repo_type}\" unknown"
 msgstr " \"{repo_type}\" tároló típus ismeretlen"
 
-#: doc_builder/environments.py:346
+#: doc_builder/environments.py:349
 msgid ""
 "\n"
 "\n"
 "Command killed due to timeout or excessive memory consumption\n"
 msgstr ""
 
-#: doc_builder/environments.py:352
+#: doc_builder/environments.py:355
 msgid "Command exited abnormally"
 msgstr "A parancs rendellenesen fejeződött be"
 
-#: doc_builder/environments.py:653
+#: doc_builder/environments.py:619
 msgid "A build environment is currently running for this version"
 msgstr "Az építési környezet jelenleg ezen a verzión fut"
 
-#: doc_builder/environments.py:813
+#: doc_builder/environments.py:780
 msgid "Build exited due to time out"
 msgstr "Az építés időtúllépés miatt lépett ki"
 
-#: doc_builder/environments.py:818
+#: doc_builder/environments.py:785
 msgid "Build exited due to excessive memory consumption"
 msgstr "Az építés túlzott memória fogyasztás miatt lépett ki"
 
-#: doc_builder/environments.py:824
+#: doc_builder/environments.py:791
 #, python-brace-format
 msgid "Build exited due to unknown error: {0}"
 msgstr "Az építés ismeretlen hiba miatt lépett ki : {0}"
 
-#: doc_builder/exceptions.py:27
+#: doc_builder/exceptions.py:31
 #, python-brace-format
 msgid ""
 "There was a problem with Read the Docs while building your documentation. "
@@ -888,27 +926,27 @@ msgid ""
 "with your build id ({build_id})."
 msgstr ""
 
-#: doc_builder/exceptions.py:36
+#: doc_builder/exceptions.py:40
 msgid ""
 "We encountered a problem with a command while building your project. To "
 "resolve this error, double check your project configuration and installed "
 "dependencies are correct and have not changed recently."
 msgstr ""
 
-#: doc_builder/exceptions.py:41
+#: doc_builder/exceptions.py:45
 #, python-brace-format
 msgid ""
 "No \"{BUILD_COMMANDS_OUTPUT_PATH_HTML}\" folder was created during this "
 "build."
 msgstr ""
 
-#: doc_builder/exceptions.py:44
+#: doc_builder/exceptions.py:48
 #, python-brace-format
 msgid ""
 "Build output directory for format \"{artifact_type}\" is not a directory."
 msgstr ""
 
-#: doc_builder/exceptions.py:47
+#: doc_builder/exceptions.py:51
 #, python-brace-format
 msgid ""
 "Build output directory for format \"{artifact_type}\" does not contain any "
@@ -916,47 +954,82 @@ msgid ""
 "file to it."
 msgstr ""
 
-#: doc_builder/exceptions.py:51
+#: doc_builder/exceptions.py:55
 #, python-brace-format
 msgid ""
 "Build output directory for format \"{artifact_type}\" contains multiple "
 "files and it is not currently supported. Please, remove all the files but "
-"the \"{artifact_type}\" your want to upload."
+"the \"{artifact_type}\" you want to upload."
 msgstr ""
 
-#: doc_builder/exceptions.py:58
+#: doc_builder/exceptions.py:60
+msgid ""
+"Your documentation did not generate an 'index.html' at its root directory. "
+"This is required for documentation serving at the root URL for this version."
+msgstr ""
+
+#: doc_builder/exceptions.py:64
+msgid ""
+"Some files were detected in an unsupported output path, '_build/html'. "
+"Ensure your project is configured to use the output path "
+"'$READTHEDOCS_OUTPUT/html' instead."
+msgstr ""
+
+#: doc_builder/exceptions.py:69
+msgid ""
+"The configuration file required to build documentation is missing from your "
+"project. Add a configuration file to your project to make it build "
+"successfully. Read more at https://docs.readthedocs.io/en/stable/config-file/"
+"v2.html"
+msgstr ""
+
+#: doc_builder/exceptions.py:74
+msgid ""
+"The configuration key \"build.image\" is deprecated. Use \"build.os\" "
+"instead to continue building your project. Read more at https://docs."
+"readthedocs.io/en/stable/config-file/v2.html#build-os"
+msgstr ""
+
+#: doc_builder/exceptions.py:79
+msgid ""
+"The configuration key \"build.os\" is required to build your documentation. "
+"Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html#build-"
+"os"
+msgstr ""
+
+#: doc_builder/exceptions.py:85
 msgid "This build was manually skipped using a command exit code."
 msgstr ""
 
-#: doc_builder/exceptions.py:63
+#: doc_builder/exceptions.py:90
 msgid "Builds for this project are temporarily disabled"
 msgstr "Építés ebben a projektben átmenetileg letiltva."
 
-#: doc_builder/exceptions.py:68
+#: doc_builder/exceptions.py:95
 #, python-brace-format
 msgid "Problem in your project's configuration. {exception}"
 msgstr "Probléma a projekt konfigurációjában. {exception}"
 
-#: doc_builder/exceptions.py:73
+#: doc_builder/exceptions.py:101
 #, python-brace-format
 msgid "Concurrency limit reached ({limit}), retrying in 5 minutes."
 msgstr ""
 
-#: doc_builder/exceptions.py:77
+#: doc_builder/exceptions.py:106
 msgid "Build cancelled by user."
 msgstr ""
 
-#: doc_builder/exceptions.py:83
+#: doc_builder/exceptions.py:112
 msgid ""
 "PDF file was not generated/found in \"_readthedocs/pdf\" output directory."
 msgstr ""
 
-#: doc_builder/exceptions.py:89
+#: doc_builder/exceptions.py:118
 #, python-brace-format
 msgid "Problem parsing MkDocs YAML configuration. {exception}"
 msgstr "Probléma a MkDocs YAML konfigurációban. {exception}"
 
-#: doc_builder/exceptions.py:93
+#: doc_builder/exceptions.py:122
 msgid ""
 "The \"docs_dir\" config from your MkDocs YAML config file has to be a string "
 "with relative or absolute path."
@@ -964,60 +1037,69 @@ msgstr ""
 "A \"docs_dir\" relatív vagy abszolút hivatkozási utat tartalmazhat a MkDocs "
 "YAML konfigfájlban."
 
-#: doc_builder/exceptions.py:98
+#: doc_builder/exceptions.py:127
 msgid ""
 "The \"docs_dir\" config from your MkDocs YAML config file does not contain a "
 "valid path."
 msgstr ""
 
-#: doc_builder/exceptions.py:103
+#: doc_builder/exceptions.py:132
 #, python-brace-format
 msgid ""
 "The \"{config}\" config from your MkDocs YAML config file has to be a list "
 "of relative paths."
 msgstr ""
 
-#: doc_builder/exceptions.py:108
+#: doc_builder/exceptions.py:137
 msgid "Please make sure the MkDocs YAML configuration file is not empty."
 msgstr ""
 
-#: doc_builder/exceptions.py:112
+#: doc_builder/exceptions.py:140
+msgid ""
+"A configuration file was not found. Make sure you have a \"mkdocs.yml\" file "
+"in your repository."
+msgstr ""
+
+#: doc_builder/exceptions.py:145
 msgid ""
 "Your MkDocs YAML config file is incorrect. Please follow the user guide "
 "https://www.mkdocs.org/user-guide/configuration/ to configure the file "
 "properly."
 msgstr ""
 
-#: doc_builder/exceptions.py:120
+#: doc_builder/exceptions.py:153
 msgid "Symlinks are not fully supported"
 msgstr ""
 
-#: gold/forms.py:52
+#: doc_builder/exceptions.py:166
+msgid ""
+"A file from your build process is too large to be processed by Read the "
+"Docs. Please ensure no files generated are larger than 1GB."
+msgstr ""
+
+#: gold/forms.py:50
 msgid "No project found."
 msgstr "Nem található projekt"
 
-#: gold/forms.py:54
+#: gold/forms.py:52
 msgid "This project is already Ad-Free."
 msgstr ""
 
-#: gold/models.py:30 organizations/models.py:33 organizations/models.py:218
-#: organizations/models.py:292 projects/models.py:123
-#: subscriptions/models.py:24 subscriptions/models.py:126
+#: gold/models.py:28 organizations/models.py:29 organizations/models.py:220
+#: organizations/models.py:294 projects/models.py:206
 msgid "Publication date"
 msgstr "Kiadás dátuma"
 
-#: gold/models.py:31 organizations/models.py:34 organizations/models.py:219
-#: organizations/models.py:293 projects/models.py:124 projects/models.py:1421
-#: subscriptions/models.py:25 subscriptions/models.py:127
-#: subscriptions/models.py:183
+#: gold/models.py:29 organizations/models.py:30 organizations/models.py:221
+#: organizations/models.py:295 projects/models.py:207 projects/models.py:1544
 msgid "Modified date"
 msgstr "Módosítás dátuma"
 
-#: gold/models.py:41 gold/templates/gold/subscription_detail.html:87
+#: gold/models.py:39 gold/templates/gold/subscription_detail.html:86
 msgid "Level"
 msgstr "Szint"
 
-#: gold/models.py:48 organizations/models.py:39 organizations/models.py:229
+#: gold/models.py:46 organizations/models.py:35 organizations/models.py:231
 #: organizations/templates/organizations/team_detail.html:49
 #: organizations/templates/organizations/team_project_edit.html:13
 #: templates/core/project_bar.html:7 templates/core/project_bar_base.html:20
@@ -1032,20 +1114,21 @@ msgid "Gold Projects"
 msgstr ""
 
 #: gold/templates/gold/projects.html:14
+#: gold/templates/gold/subscription_detail.html:46
 msgid ""
 "Gold members may completely remove advertising for all visitors to their "
 "projects."
 msgstr ""
 
 #: gold/templates/gold/projects.html:20
-#: gold/templates/gold/subscription_detail.html:53
+#: gold/templates/gold/subscription_detail.html:52
 msgid ""
 "For small businesses or personal projects, we ask for $5 per month to remove "
 "ads from a project."
 msgstr ""
 
 #: gold/templates/gold/projects.html:21
-#: gold/templates/gold/subscription_detail.html:54
+#: gold/templates/gold/subscription_detail.html:53
 msgid ""
 "For corporate supported open source projects, we ask for a $50 membership in "
 "order to cover our support and operations costs."
@@ -1066,7 +1149,7 @@ msgstr ""
 #: templates/account/email.html:38 templates/projects/domain_list.html:40
 #: templates/projects/environmentvariable_list.html:45
 #: templates/projects/project_notifications.html:66
-#: templates/projects/project_translations.html:50
+#: templates/projects/project_translations.html:57
 #: templates/projects/project_users.html:34
 msgid "Remove"
 msgstr "Eltávolítás"
@@ -1108,115 +1191,108 @@ msgstr ""
 "szolgáltatások fejlesztésére. Pénzét közvetlenül a termék karbantartására és "
 "fejlesztésére fordítjuk."
 
-#: gold/templates/gold/subscription_detail.html:46
-msgid ""
-"Becoming a Gold member makes Read the Docs ad-free when you are logged-in. "
-"Gold members may also completely remove advertising for all visitors to "
-"their projects."
-msgstr ""
-
-#: gold/templates/gold/subscription_detail.html:58
+#: gold/templates/gold/subscription_detail.html:57
 msgid ""
 "If you are a company using Read the Docs, please consider <a href=\"https://"
 "readthedocs.com/\">Read the Docs for Business</a>. This will help us cover "
 "our costs, and provide you with a better experience on the site."
 msgstr ""
 
-#: gold/templates/gold/subscription_detail.html:67
+#: gold/templates/gold/subscription_detail.html:66
 #, python-format
 msgid ""
 "For any questions about our Gold membership program, please <a href=\"mailto:"
 "rev@readthedocs.org?subject=Gold%%20membership%%20questions\">email us</a>."
 msgstr ""
 
-#: gold/templates/gold/subscription_detail.html:75
+#: gold/templates/gold/subscription_detail.html:74
 msgid "Your gold membership"
 msgstr ""
 
-#: gold/templates/gold/subscription_detail.html:81
+#: gold/templates/gold/subscription_detail.html:80
 msgid "Thanks for supporting Read the Docs! It really means a lot to us."
 msgstr "Köszönjük a Read the Docs támogatását. Ez igazán sokat jelent nekünk."
 
-#: gold/templates/gold/subscription_detail.html:93
+#: gold/templates/gold/subscription_detail.html:92
 msgid "Manage subscription"
 msgstr ""
 
-#: gold/templates/gold/subscription_detail.html:96
+#: gold/templates/gold/subscription_detail.html:95
 msgid "Gold projects"
 msgstr ""
 
-#: gold/templates/gold/subscription_detail.html:97
+#: gold/templates/gold/subscription_detail.html:96
 msgid "Choose projects you would like to make ad-free."
 msgstr ""
 
-#: gold/templates/gold/subscription_detail.html:100
+#: gold/templates/gold/subscription_detail.html:99
 msgid "Select Projects"
 msgstr "Projektek kiválasztása"
 
-#: gold/templates/gold/subscription_detail.html:104
+#: gold/templates/gold/subscription_detail.html:103
 msgid "Become a Gold member"
 msgstr ""
 
-#: gold/templates/gold/subscription_detail.html:112
+#: gold/templates/gold/subscription_detail.html:111
 #: templates/account/signup.html:10 templates/account/signup.html:46
 msgid "Sign Up"
 msgstr "Regisztráció"
 
-#: gold/views.py:188 subscriptions/views.py:176
+#: gold/views.py:189 subscriptions/views.py:196
 msgid ""
 "There was an error connecting to Stripe, please try again in a few minutes"
 msgstr ""
 
-#: integrations/models.py:150 integrations/models.py:158
+#: integrations/models.py:151 integrations/models.py:159
 msgid "Request headers"
 msgstr "Kérés fejlécek"
 
-#: integrations/models.py:155
+#: integrations/models.py:156
 msgid "Request body"
 msgstr "Kérés test"
 
-#: integrations/models.py:163
+#: integrations/models.py:164
 msgid "Response body"
 msgstr "Válasz test"
 
-#: integrations/models.py:166
+#: integrations/models.py:167
 msgid "Status code"
 msgstr "Állapotkód"
 
-#: integrations/models.py:176
+#: integrations/models.py:177
 #, python-brace-format
 msgid "Exchange {0}"
 msgstr "Csere {0}"
 
-#: integrations/models.py:274
+#: integrations/models.py:275
 msgid "GitHub incoming webhook"
 msgstr "GitHub bejövő webhurok"
 
-#: integrations/models.py:275
+#: integrations/models.py:276
 msgid "Bitbucket incoming webhook"
 msgstr "Bitbucket bejövő webhurok"
 
-#: integrations/models.py:276
+#: integrations/models.py:277
 msgid "GitLab incoming webhook"
 msgstr "GitLab bejövő webhurok"
 
-#: integrations/models.py:277
+#: integrations/models.py:278
 msgid "Generic API incoming webhook"
 msgstr "Általános API bejövő webhurok"
 
-#: integrations/models.py:288
+#: integrations/models.py:289
 msgid "Integration type"
 msgstr "Integráció típusa"
 
-#: integrations/models.py:293
+#: integrations/models.py:294
 msgid "Provider data"
 msgstr "Szolgáltatói adatok"
 
-#: integrations/models.py:302
+#: integrations/models.py:303
 msgid "Secret used to validate the payload of the webhook"
 msgstr ""
 
-#: integrations/models.py:324
+#: integrations/models.py:315
 #, python-brace-format
 msgid "{0} for {1}"
 msgstr "{0} az {1} -ből"
@@ -1229,8 +1305,8 @@ msgstr ""
 msgid "To user"
 msgstr ""
 
-#: invitations/models.py:112 organizations/models.py:59
-#: organizations/models.py:308
+#: invitations/models.py:112 organizations/models.py:55
+#: organizations/models.py:310
 msgid "E-mail"
 msgstr ""
 
@@ -1289,18 +1365,18 @@ msgstr ""
 msgid "Decline"
 msgstr ""
 
-#: notifications/forms.py:29
+#: notifications/forms.py:27
 msgid "Notification"
 msgstr "Figyelmeztetés"
 
-#: oauth/models.py:28 oauth/models.py:116 organizations/models.py:235
+#: oauth/models.py:28 oauth/models.py:114 organizations/models.py:237
 msgid "Users"
 msgstr "Felhasználók"
 
-#: oauth/models.py:33 oauth/models.py:128 organizations/models.py:50
-#: organizations/models.py:242 projects/filters.py:29 projects/filters.py:113
-#: projects/models.py:133 projects/models.py:1413 sphinx_domains/models.py:51
-#: subscriptions/models.py:28
+#: oauth/models.py:33 oauth/models.py:126 organizations/filters.py:59
+#: organizations/filters.py:65 organizations/models.py:46
+#: organizations/models.py:244 projects/filters.py:42 projects/filters.py:107
+#: projects/models.py:216 projects/models.py:1536
 msgid "Name"
 msgstr "Név"
 
@@ -1316,59 +1392,59 @@ msgstr "Avatar kép URL"
 msgid "URL to organization page"
 msgstr "URL ta szervezet oldalára"
 
-#: oauth/models.py:53 oauth/models.py:182
+#: oauth/models.py:50 oauth/models.py:177
 msgid "VCS provider"
 msgstr ""
 
-#: oauth/models.py:93 oauth/models.py:245
+#: oauth/models.py:88 oauth/models.py:242
 msgid "Connected account"
 msgstr "Csatlakoztatott fiók"
 
-#: oauth/models.py:130
+#: oauth/models.py:128
 msgid "Full Name"
 msgstr "Teljes név"
 
-#: oauth/models.py:138
+#: oauth/models.py:136
 msgid "Description of the project"
 msgstr "Projekt leírása"
 
-#: oauth/models.py:141
+#: oauth/models.py:139
 msgid "Owner avatar image URL"
 msgstr "Tulajdonos avatar képének URL-je"
 
-#: oauth/models.py:148
+#: oauth/models.py:146
 msgid "SSH URL"
 msgstr "SSH URL"
 
-#: oauth/models.py:154
+#: oauth/models.py:152
 msgid "Repository clone URL"
 msgstr "tároló klónjának URL-je"
 
-#: oauth/models.py:161
+#: oauth/models.py:159
 msgid "HTML URL"
 msgstr "HTML URL"
 
-#: oauth/models.py:163
+#: oauth/models.py:161
 msgid "Private repository"
 msgstr "Privát tároló"
 
-#: oauth/models.py:165
+#: oauth/models.py:163
 msgid "vcs"
 msgstr "VCS"
 
-#: oauth/models.py:171
+#: oauth/models.py:169
 msgid "Default branch of the repository"
 msgstr ""
 
-#: oauth/models.py:249
+#: oauth/models.py:246
 msgid "Has admin privilege"
 msgstr "Admin jogosult"
 
-#: oauth/notifications.py:16
+#: oauth/notifications.py:15
 msgid "Webhook successfully added."
 msgstr "WEB horog sikeresen hozzáadva."
 
-#: oauth/notifications.py:19
+#: oauth/notifications.py:18
 msgid ""
 "Could not add webhook for {{ project.name }}. Make sure <a "
 "href=\"{{ url_docs_webhook }}\">you have the correct {{ provider.name }} "
@@ -1378,7 +1454,7 @@ msgstr ""
 "<a href=\"{{ url_docs_webhook }}\">ellenőrizze a  {{ provider.name }} "
 "projekt engedélyeit</a>."
 
-#: oauth/notifications.py:22
+#: oauth/notifications.py:21
 msgid ""
 "Could not add webhook for {{ project.name }}. Please <a "
 "href=\"{{ url_connect_account }}\">connect your {{ provider.name }} account</"
@@ -1400,7 +1476,7 @@ msgstr ""
 "href='{{ url_integrations }}'>projekt integrációkat</a> a további "
 "információkért."
 
-#: oauth/notifications.py:65
+#: oauth/notifications.py:66
 msgid ""
 "Could not send {{ provider_name }} build status report for {{ project."
 "name }}. Make sure you have the correct {{ provider_name }} repository "
@@ -1409,18 +1485,18 @@ msgid ""
 "connected to Read the Docs."
 msgstr ""
 
-#: oauth/services/base.py:23
+#: oauth/services/base.py:24
 #, python-brace-format
 msgid ""
 "Our access to your following accounts was revoked: {provider}. Please, "
 "reconnect them from your social account connections."
 msgstr ""
 
-#: oauth/utils.py:54
+#: oauth/utils.py:57
 msgid "Webhook activated"
 msgstr "WEB horog aktiválva"
 
-#: oauth/utils.py:62
+#: oauth/utils.py:65
 msgid ""
 "Webhook activation failed. Make sure you have the necessary permissions."
 msgstr "WEB horog aktiválás sikertelen. Ellenőrizze engedélyeit."
@@ -1435,11 +1511,58 @@ msgstr ""
 msgid "Admin"
 msgstr "Admin"
 
-#: organizations/forms.py:41 organizations/forms.py:96
+#: organizations/filters.py:63
+msgid "Recently created"
+msgstr ""
+
+#: organizations/filters.py:64
+msgid "Least recently created"
+msgstr ""
+
+#: organizations/filters.py:66 projects/filters.py:43 projects/filters.py:108
+msgid "Name (descending)"
+msgstr ""
+
+#: organizations/filters.py:99
+msgid "All organizations"
+msgstr ""
+
+#: organizations/filters.py:107 projects/filters.py:150 projects/filters.py:198
+msgid "Sort by"
+msgstr ""
+
+#: organizations/filters.py:135
+msgid "All projects"
+msgstr ""
+
+#: organizations/filters.py:142 organizations/filters.py:172
+#: organizations/filters.py:219 organizations/models.py:305
+#: templates/base.html:199
+msgid "Team"
+msgstr "Csapat"
+
+#: organizations/filters.py:143 organizations/filters.py:173
+#: organizations/filters.py:220
+msgid "All teams"
+msgstr ""
+
+#: organizations/filters.py:227 organizations/models.py:251
+msgid "Access"
+msgstr ""
+
+#: organizations/filters.py:228
+msgid "All access levels"
+msgstr ""
+
+#: organizations/filters.py:229
+msgid "Owner"
+msgstr ""
+
+#: organizations/forms.py:41 organizations/forms.py:98
 msgid "Organization Name"
 msgstr ""
 
-#: organizations/forms.py:42 organizations/forms.py:97
+#: organizations/forms.py:42 organizations/forms.py:99
 msgid "Billing Email"
 msgstr ""
 
@@ -1447,100 +1570,96 @@ msgstr ""
 msgid "Site URL"
 msgstr ""
 
-#: organizations/forms.py:71
+#: organizations/forms.py:72
 msgid "Invalid organization name: no slug generated"
 msgstr ""
 
-#: organizations/forms.py:74
+#: organizations/forms.py:76
 #, python-format
 msgid "Organization %(name)s already exists"
 msgstr ""
 
-#: organizations/forms.py:132 organizations/forms.py:218 projects/forms.py:474
+#: organizations/forms.py:133 organizations/forms.py:218 projects/forms.py:552
 msgid "Email address or username"
 msgstr ""
 
-#: organizations/forms.py:148 organizations/forms.py:253 projects/forms.py:489
+#: organizations/forms.py:149 organizations/forms.py:253 projects/forms.py:567
 #, python-format
 msgid "User %(username)s does not exist"
 msgstr ""
 
-#: organizations/forms.py:153
+#: organizations/forms.py:154
 #, python-format
 msgid "User %(username)s is already an owner"
 msgstr ""
 
-#: organizations/forms.py:177
+#: organizations/forms.py:178
 msgid "Team already exists"
 msgstr ""
 
-#: organizations/forms.py:259
+#: organizations/forms.py:260
 msgid "User is already a team member"
 msgstr ""
 
-#: organizations/models.py:44
+#: organizations/models.py:40
 #: organizations/templates/organizations/admin/base.html:13
 msgid "Owners"
 msgstr ""
 
-#: organizations/models.py:72 templates/core/project_detail_right.html:61
+#: organizations/models.py:68 templates/core/project_detail_right.html:61
 msgid "Home Page"
 msgstr "Kezdőlap"
 
-#: organizations/models.py:79
+#: organizations/models.py:75
+msgid "Never disable"
+msgstr ""
+
+#: organizations/models.py:82
 msgid "Disabled"
 msgstr ""
 
-#: organizations/models.py:84
+#: organizations/models.py:87
 msgid "Artifacts Cleaned"
 msgstr ""
 
-#: organizations/models.py:89
+#: organizations/models.py:92
 msgid "Maximum concurrent builds allowed for this organization"
 msgstr ""
 
-#: organizations/models.py:95
+#: organizations/models.py:99
 msgid "Stripe customer ID"
 msgstr ""
 
-#: organizations/models.py:102
+#: organizations/models.py:106
 msgid "Stripe customer"
 msgstr ""
 
-#: organizations/models.py:110
+#: organizations/models.py:114
 msgid "Stripe subscription"
 msgstr ""
 
-#: organizations/models.py:123
+#: organizations/models.py:127
 msgid "organization"
 msgstr ""
 
-#: organizations/models.py:207
+#: organizations/models.py:209
 #, python-brace-format
 msgid "{org} owner {owner}"
 msgstr ""
 
-#: organizations/models.py:249
-msgid "Access"
-msgstr ""
-
-#: organizations/models.py:266
+#: organizations/models.py:268
 msgid "team"
 msgstr ""
 
-#: organizations/models.py:303 templates/base.html:199
-msgid "Team"
-msgstr "Csapat"
-
-#: organizations/models.py:309
+#: organizations/models.py:311
 msgid "Hash"
 msgstr ""
 
-#: organizations/models.py:310
+#: organizations/models.py:312
 msgid "Count"
 msgstr ""
 
-#: organizations/models.py:311
+#: organizations/models.py:313
 msgid "Total"
 msgstr ""
 
@@ -1581,16 +1700,6 @@ msgstr ""
 
 #: organizations/templates/organizations/admin/organization_edit.html:5
 msgid "Edit Organization"
-msgstr ""
-
-#: organizations/templates/organizations/admin/organization_edit.html:15
-#: projects/forms.py:257 redirects/templates/redirects/redirect_form.html:80
-#: templates/builds/regexautomationrule_form.html:28
-#: templates/projects/environmentvariable_form.html:20
-#: templates/projects/project_edit.html:22
-#: templates/projects/project_version_submit.html:4
-#: templates/projects/webhook_form.html:38
-msgid "Save"
 msgstr ""
 
 #. Translators: The 'or' here is in between 'Save' and 'Delete organization'.
@@ -1712,6 +1821,21 @@ msgstr ""
 
 #: organizations/templates/organizations/onboard/team.html:7
 msgid "Create a Team"
+msgstr ""
+
+#: organizations/templates/organizations/organization_choose.html:7
+#: organizations/templates/organizations/organization_choose.html:16
+msgid "Choose an organization"
+msgstr ""
+
+#: organizations/templates/organizations/organization_choose.html:19
+msgid ""
+"You are a member of several organizations. Select the organization that you "
+"want to use:"
+msgstr ""
+
+#: organizations/templates/organizations/organization_choose.html:45
+msgid "You aren't currently a member of any organizations."
 msgstr ""
 
 #: organizations/templates/organizations/organization_create.html:23
@@ -1856,75 +1980,75 @@ msgstr ""
 msgid "Verify your email address"
 msgstr "E-mail cím ellenőrzése"
 
-#: organizations/views/private.py:113
+#: organizations/views/private.py:157
 msgid "Owner removed"
 msgstr ""
 
-#: organizations/views/private.py:118
+#: organizations/views/private.py:162
 msgid "User is the last owner, can't be removed"
 msgstr ""
 
-#: organizations/views/private.py:126
+#: organizations/views/private.py:170
 msgid "Team added"
 msgstr ""
 
-#: organizations/views/private.py:136
+#: organizations/views/private.py:180
 msgid "Team deleted"
 msgstr ""
 
-#: organizations/views/private.py:153
+#: organizations/views/private.py:197
 msgid "Team updated"
 msgstr ""
 
-#: organizations/views/private.py:158
+#: organizations/views/private.py:202
 msgid "Team projects updated"
 msgstr ""
 
-#: organizations/views/private.py:171
+#: organizations/views/private.py:215
 msgid "Member added to team"
 msgstr ""
 
-#: organizations/views/private.py:176
+#: organizations/views/private.py:220
 msgid "Member removed from team"
 msgstr ""
 
-#: profiles/views.py:72
+#: profiles/views.py:67
 msgid "You have successfully deleted your account"
 msgstr ""
 
-#: profiles/views.py:127
+#: profiles/views.py:139
 msgid "Updated your advertising preferences"
 msgstr "Hirdetési preferenciák frissítve"
 
-#: projects/admin.py:127
+#: projects/admin.py:121
 msgid "Yes"
 msgstr "Igen"
 
-#: projects/admin.py:128
+#: projects/admin.py:122
 msgid "No"
 msgstr ""
 
-#: projects/admin.py:157
+#: projects/admin.py:151
 msgid "Not spam (1-{})"
 msgstr ""
 
-#: projects/admin.py:163
+#: projects/admin.py:157
 msgid "Don't show Ads ({}-{})"
 msgstr ""
 
-#: projects/admin.py:170
+#: projects/admin.py:164
 msgid "Deny on robots ({}-{})"
 msgstr ""
 
-#: projects/admin.py:177
+#: projects/admin.py:171
 msgid "Don't show dashboard ({}-{})"
 msgstr ""
 
-#: projects/admin.py:184
+#: projects/admin.py:178
 msgid "Don't serve docs ({}-{})"
 msgstr ""
 
-#: projects/admin.py:191
+#: projects/admin.py:185
 msgid "Delete project (>={})"
 msgstr ""
 
@@ -1976,7 +2100,7 @@ msgstr "Mercurial"
 msgid "Bazaar"
 msgstr "Bazaar"
 
-#: projects/constants.py:99 projects/models.py:2119
+#: projects/constants.py:99 projects/models.py:2184
 msgid "Public"
 msgstr "Nyilvános"
 
@@ -1992,26 +2116,38 @@ msgstr "CPython 2.x"
 msgid "CPython 3.x"
 msgstr "CPython 3.x"
 
-#: projects/constants.py:399
+#: projects/constants.py:411
 msgid "Valid and active"
 msgstr ""
 
-#: projects/constants.py:400
+#: projects/constants.py:412
 msgid "Invalid"
 msgstr ""
 
-#: projects/constants.py:401
+#: projects/constants.py:413
 msgid "Pending"
 msgstr ""
 
-#: projects/exceptions.py:15
+#: projects/constants.py:423
+msgid "Multiple versions with translations (/<language>/<version>/<filename>)"
+msgstr ""
+
+#: projects/constants.py:427
+msgid "Multiple versions without translations (/<version>/<filename>)"
+msgstr ""
+
+#: projects/constants.py:431
+msgid "Single version without translations (/<filename>)"
+msgstr ""
+
+#: projects/exceptions.py:14
 msgid ""
 "A configuration file was not found. Make sure you have a conf.py file in "
 "your repository."
 msgstr ""
 "A konfigurációs fájl nem taláható. Ellenőrizze a conf.py file meglétét."
 
-#: projects/exceptions.py:20
+#: projects/exceptions.py:19
 msgid ""
 "We found more than one conf.py and are not sure which one to use. Please, "
 "specify the correct file under the Advanced settings tab in the project's "
@@ -2021,11 +2157,11 @@ msgstr ""
 "Kérjük, a határozza meg a helyes fájlt a projekt adminisztráció haladó "
 "beállítások pontjában."
 
-#: projects/exceptions.py:28
+#: projects/exceptions.py:26
 msgid "The file {} doesn't exist. Make sure it's a valid file path."
 msgstr ""
 
-#: projects/exceptions.py:36
+#: projects/exceptions.py:34
 msgid ""
 "There was a problem connecting to your repository, ensure that your "
 "repository URL is correct."
@@ -2033,7 +2169,7 @@ msgstr ""
 "Probléma lépett fel a tárolóhoz kapcsolódás során. Kérjük, ellenőrizze a "
 "tároló URL helyes-e!"
 
-#: projects/exceptions.py:40
+#: projects/exceptions.py:38
 msgid ""
 "There was a problem connecting to your repository, ensure that your "
 "repository URL is correct and your repository is public. Private "
@@ -2043,215 +2179,216 @@ msgstr ""
 "tároló URL helyes-e, illetve a tároló nyilvános-e! A nem nyilvános tárolók "
 "nem támogatottak."
 
-#: projects/exceptions.py:45
-msgid ""
-"One or more submodule URLs are not valid: {}, git/ssh URL schemas for "
-"submodules are not supported."
-msgstr ""
-
-#: projects/exceptions.py:49
+#: projects/exceptions.py:43
 msgid ""
 "You can not have two versions with the name latest or stable. Ensure you "
 "don't have both a branch and a tag with this name."
 msgstr ""
 
-#: projects/exceptions.py:53
+#: projects/exceptions.py:47
 msgid "Failed to checkout revision: {}"
 msgstr "A következő felülvizsgálat ellenőrzése nem sikerült: {}"
 
-#: projects/exceptions.py:56
+#: projects/exceptions.py:50
 msgid ""
 "There was a problem cloning your repository. Please check the command output "
 "for more information."
 msgstr ""
 
-#: projects/filters.py:30 projects/filters.py:79
-msgid "Name (descending)"
+#: projects/filters.py:35 projects/filters.py:98
+msgid "Recently built"
 msgstr ""
 
-#: projects/filters.py:31 projects/filters.py:82
-msgid "Most recently built"
-msgstr ""
-
-#: projects/filters.py:32 projects/filters.py:83
+#: projects/filters.py:39 projects/filters.py:102
 msgid "Least recently built"
 msgstr ""
 
-#: projects/filters.py:80
-msgid "Most recently modified"
+#: projects/filters.py:40 projects/filters.py:103
+msgid "Frequently built"
 msgstr ""
 
-#: projects/filters.py:81
-msgid "Least recently modified"
-msgstr ""
-
-#: projects/filters.py:84
-msgid "Most frequently built"
-msgstr ""
-
-#: projects/filters.py:85
+#: projects/filters.py:41 projects/filters.py:104
 msgid "Least frequently built"
 msgstr ""
 
-#: projects/filters.py:112 projects/filters.py:161
-msgid "Sort by"
+#: projects/filters.py:105
+msgid "Recently modified"
 msgstr ""
 
-#: projects/filters.py:131
+#: projects/filters.py:106
+msgid "Least recently modified"
+msgstr ""
+
+#: projects/filters.py:168
 msgid "Hidden versions"
 msgstr ""
 
-#: projects/filters.py:132
+#: projects/filters.py:169
 msgid "Visible versions"
 msgstr ""
 
-#: projects/filters.py:136
+#: projects/filters.py:173
 msgid "Public versions"
 msgstr ""
 
-#: projects/filters.py:137
+#: projects/filters.py:174
 msgid "Private versions"
 msgstr ""
 
-#: projects/filters.py:153
+#: projects/filters.py:190
 msgid "Visibility"
 msgstr ""
 
-#: projects/filters.py:162
-msgid "Relevance"
-msgstr ""
-
-#: projects/forms.py:102
-msgid "Edit advanced project options"
-msgstr "Haladó projekt lehetőségek szerkesztése"
-
-#: projects/forms.py:125
+#: projects/forms.py:120
 msgid "Invalid project name, a project already exists with that name"
 msgstr "Érvénytelen projektnév, ilyen nevű projekt már létezik"
 
-#: projects/forms.py:129
+#: projects/forms.py:124
 msgid "Invalid project name"
 msgstr "Érvénytelen projektnév"
 
-#: projects/forms.py:147
+#: projects/forms.py:142
 msgid "Repository invalid"
 msgstr "Érvénytelen tároló"
 
-#: projects/forms.py:188
+#: projects/forms.py:183
 msgid "Length of each tag must be less than or equal to 100 characters."
 msgstr "A jelölő hossza nem lehet nagyobb 100 karakternél"
 
-#: projects/forms.py:247
+#: projects/forms.py:252
+#, python-brace-format
+msgid ""
+"This setting is inherited from the <a href=\"{link}\">parent translation</a>."
+msgstr ""
+
+#: projects/forms.py:282
 msgid "Global settings"
 msgstr ""
 
-#: projects/forms.py:251
+#: projects/forms.py:286
 msgid "Default settings"
 msgstr ""
 
-#: projects/forms.py:295
+#: projects/forms.py:335
 msgid "To build from pull requests you need a "
 msgstr ""
 
-#: projects/forms.py:306
+#: projects/forms.py:346
 msgid ""
 "To build from pull requests your repository's webhook needs to send pull "
 "request events. "
 msgstr ""
 
-#: projects/forms.py:354
+#: projects/forms.py:394
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
 msgstr ""
 "A konfigurációs fájl érvénytelen, ellenőrizze tartalmaz-e conf.py fájlt."
 
-#: projects/forms.py:402
+#: projects/forms.py:456
 #, python-brace-format
 msgid "There is already a \"{lang}\" translation for the {proj} project."
 msgstr "Már van egy \"{lang}\" fordítás a {proj} projektben."
 
-#: projects/forms.py:493
+#: projects/forms.py:571
 #, python-format
 msgid "User %(username)s is already a maintainer"
 msgstr ""
 
-#: projects/forms.py:572
+#: projects/forms.py:653
 msgid "The payload must be a valid JSON object."
 msgstr ""
 
-#: projects/forms.py:751
+#: projects/forms.py:683
+msgid ""
+"This project is configured with a versioning scheme that doesn't support "
+"translations."
+msgstr ""
+
+#: projects/forms.py:850
 msgid "Only one domain can be canonical at a time."
 msgstr ""
 
-#: projects/forms.py:858
+#: projects/forms.py:951
 msgid "Variable name can't start with __ (double underscore)"
 msgstr "Változónév nem kezdődhet aláhúzás karakterrel."
 
-#: projects/forms.py:862
+#: projects/forms.py:955
 msgid "Variable name can't start with READTHEDOCS"
 msgstr "Változónév nem kezdődhet a READTHEDOCS karaktersorozattal"
 
-#: projects/forms.py:867
+#: projects/forms.py:960
 msgid "There is already a variable with this name for this project"
 msgstr "Már van ilyen nevű változó a projektben"
 
-#: projects/forms.py:872
+#: projects/forms.py:965
 msgid "Variable name can't contain spaces"
 msgstr "A változónév nem tartalmazhat üres karaktert"
 
-#: projects/forms.py:876
+#: projects/forms.py:969
 msgid "Only letters, numbers and underscore are allowed"
 msgstr "Csak betűk, számok és aláhúzás használható"
 
-#: projects/models.py:85
+#: projects/models.py:90
 msgid "Main project"
 msgstr ""
 
-#: projects/models.py:91
+#: projects/models.py:96
 msgid "Subproject"
 msgstr ""
 
-#: projects/models.py:96
+#: projects/models.py:101
 msgid "Alias"
 msgstr "Álnév"
 
-#: projects/models.py:138
+#: projects/models.py:221
 msgid "Short description of this project"
 msgstr ""
 
-#: projects/models.py:141
+#: projects/models.py:224
 msgid "Repository URL"
 msgstr "Tároló URL"
 
-#: projects/models.py:144
+#: projects/models.py:227
 msgid "Hosted documentation repository URL"
 msgstr "Dokumentáció tároló URL"
 
-#: projects/models.py:148
+#: projects/models.py:234
 msgid "Repository type"
 msgstr "Tároló típusa"
 
-#: projects/models.py:154
+#: projects/models.py:240
 msgid "Project homepage"
 msgstr "Projekt kezdőoldal"
 
-#: projects/models.py:156
+#: projects/models.py:242
 msgid "The project's homepage"
 msgstr "Projekt kezdőoldala"
 
-#: projects/models.py:159
+#: projects/models.py:245
 msgid "Canonical URL"
 msgstr "Kanonikus URL"
 
-#: projects/models.py:161
+#: projects/models.py:247
 msgid "URL that documentation is expected to serve from"
 msgstr "Ezt dokumentációt működtető URL"
 
-#: projects/models.py:164
+#: projects/models.py:250
+msgid "Versioning scheme"
+msgstr ""
+
+#: projects/models.py:257
+msgid ""
+"This affects how the URL of your documentation looks like, and if it "
+"supports translations or multiple versions. Changing the versioning scheme "
+"will break your current URLs."
+msgstr ""
+
+#: projects/models.py:264
 msgid "Single version"
 msgstr "Egyetlen verzió"
 
-#: projects/models.py:167
+#: projects/models.py:267
 msgid ""
 "A single version site has no translations and only your \"latest\" version, "
 "served at the root of the domain. Use this with caution, only turn it on if "
@@ -2261,29 +2398,29 @@ msgstr ""
 "domain gyökér könyvtárából kiszolgálva.Használja elővigyázatosan, csak akkor "
 "kapcsolja be, ha <b>soha</b>nem használ több verziót a dokumentációban."
 
-#: projects/models.py:174
+#: projects/models.py:274
 msgid "Default version"
 msgstr "Alapértelmezett verzió"
 
-#: projects/models.py:177
+#: projects/models.py:277
 msgid "The version of your project that / redirects to"
 msgstr "A projekt verziója átirányítva a"
 
-#: projects/models.py:182
+#: projects/models.py:282
 msgid "Default branch"
 msgstr "Alapértelmezett ág"
 
-#: projects/models.py:188
+#: projects/models.py:288
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS."
 msgstr ""
 
-#: projects/models.py:193
+#: projects/models.py:293 projects/models.py:553
 msgid "Requirements file"
 msgstr "Követelmény fájl"
 
-#: projects/models.py:199
+#: projects/models.py:299 projects/models.py:559
 msgid ""
 "A <a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-"
 "files\">pip requirements file</a> needed to build your documentation. Path "
@@ -2293,50 +2430,61 @@ msgstr ""
 "files\">pip követelmény fájl</a> szükséges a dokumentáció felépítéséhez. "
 "Útvonal a projekt gyökerétől."
 
-#: projects/models.py:211
+#: projects/models.py:311 projects/models.py:571
 msgid ""
 "Type of documentation you are building. <a href=\"http://www.sphinx-doc.org/"
 "en/stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More "
 "info on sphinx builders</a>."
 msgstr ""
 
-#: projects/models.py:217
-msgid "Documentation URL Configuration"
+#: projects/models.py:318
+msgid "Custom path prefix"
 msgstr ""
 
-#: projects/models.py:223
+#: projects/models.py:324
 msgid ""
-"Supports the following keys: $language, $version, $subproject, $filename. An "
-"example: `$language/$version/$filename`."
+"A custom path prefix used when serving documentation from this project. By "
+"default we serve documentation at the root (/) of a domain."
 msgstr ""
 
-#: projects/models.py:230
+#: projects/models.py:329
+msgid "Custom subproject path prefix"
+msgstr ""
+
+#: projects/models.py:335
+msgid ""
+"A custom path prefix used when evaluating the root of a subproject. By "
+"default we serve documentation from subprojects under the `/projects/` "
+"prefix."
+msgstr ""
+
+#: projects/models.py:342
 msgid "Build pull requests for this project"
 msgstr ""
 
-#: projects/models.py:233
+#: projects/models.py:345
 msgid ""
 "More information in <a href=\"https://docs.readthedocs.io/page/guides/"
 "autobuild-docs-for-pull-requests.html\">our docs</a>."
 msgstr ""
 
-#: projects/models.py:237
+#: projects/models.py:349
 msgid "Privacy level of Pull Requests"
 msgstr ""
 
-#: projects/models.py:244
+#: projects/models.py:356
 msgid "Should builds from pull requests be public?"
 msgstr ""
 
-#: projects/models.py:249
+#: projects/models.py:361
 msgid "CDN Enabled"
 msgstr "CDN engedélyezve"
 
-#: projects/models.py:251
+#: projects/models.py:363
 msgid "Analytics code"
 msgstr "Analytics kód"
 
-#: projects/models.py:256
+#: projects/models.py:368
 msgid ""
 "Google Analytics Tracking ID (ex. <code>UA-22345342-1</code>). This may slow "
 "down your page loads."
@@ -2344,25 +2492,25 @@ msgstr ""
 "Google Analytics Tracking ID (pl. <code>UA-22345342-1</code>). Ez "
 "lassíthatja az oldalak betöltését."
 
-#: projects/models.py:262
+#: projects/models.py:374
 msgid "Disable Analytics"
 msgstr ""
 
-#: projects/models.py:266
+#: projects/models.py:378
 msgid ""
 "Disable Google Analytics completely for this project (requires rebuilding "
 "documentation)"
 msgstr ""
 
-#: projects/models.py:271
+#: projects/models.py:383
 msgid "Alternative container image"
 msgstr "Alternatív konténer kép"
 
-#: projects/models.py:277
+#: projects/models.py:389
 msgid "Container memory limit"
 msgstr "Konténer memória korlát"
 
-#: projects/models.py:282
+#: projects/models.py:394
 msgid ""
 "Memory limit in Docker format -- example: <code>512m</code> or <code>1g</"
 "code>"
@@ -2370,141 +2518,90 @@ msgstr ""
 "Memória korlát Docker formátumban -- például: <code>512m</code> or <code>1g</"
 "code>"
 
-#: projects/models.py:287
+#: projects/models.py:399
 msgid "Container time limit in seconds"
 msgstr "Konténer idő korlát másodpercekben"
 
-#: projects/models.py:292
+#: projects/models.py:404
 msgid "Alternate build queue id"
 msgstr "Alternatív építési sor azonosító"
 
-#: projects/models.py:298
+#: projects/models.py:410
 msgid "Maximum concurrent builds allowed for this project"
 msgstr ""
 
-#: projects/models.py:303
+#: projects/models.py:415
 msgid "Allow paid advertising"
 msgstr "Fizetett hirdetések engedélyezése"
 
-#: projects/models.py:305
+#: projects/models.py:417
 msgid "If unchecked, users will still see community ads."
 msgstr "Kijelöletlenül a felhasználók csak a közösségi hirdetéseket látják."
 
-#: projects/models.py:308
+#: projects/models.py:420
 msgid "Ad-free"
 msgstr "Hirdetés mentes"
 
-#: projects/models.py:313
+#: projects/models.py:425
 msgid "Is spam?"
 msgstr ""
 
-#: projects/models.py:316
+#: projects/models.py:428
 msgid "Manually marked as (not) spam"
 msgstr ""
 
-#: projects/models.py:319
+#: projects/models.py:431
 msgid "Show version warning"
 msgstr "Verzió figyelmeztetések megjelenítése"
 
-#: projects/models.py:321
+#: projects/models.py:433
 msgid "Show warning banner in non-stable nor latest versions."
 msgstr ""
 "Figyelmeztető banner megjelenítése a nem stabil és nem a legújabb verziókban."
 
-#: projects/models.py:326
-msgid "Enable EPUB build"
-msgstr "EPUB építés engedélyezése"
-
-#: projects/models.py:329
-msgid "Create a EPUB version of your documentation with each build."
-msgstr "EPUB verzió készítése minden építéskor."
-
-#: projects/models.py:333
-msgid "Enable PDF build"
-msgstr "PDF építés engedélyezése"
-
-#: projects/models.py:336
-msgid "Create a PDF version of your documentation with each build."
-msgstr "PDF verzió készítése minden építéskor."
-
-#: projects/models.py:342 projects/models.py:1418
-msgid "Path"
-msgstr "Útvonal"
-
-#: projects/models.py:346
-msgid "The directory where <code>conf.py</code> lives"
-msgstr "<code>conf.py</code> könyvtára"
-
-#: projects/models.py:351
-msgid "Python configuration file"
-msgstr "Python konfigurációs fájl"
-
-#: projects/models.py:356
-msgid ""
-"Path from project root to <code>conf.py</code> file (ex. <code>docs/conf.py</"
-"code>). Leave blank if you want us to find it for you."
+#: projects/models.py:437
+msgid "Path for .readthedocs.yaml"
 msgstr ""
-"A <code>conf.py</code> fájlhoz vezető út (pld. <code>docs/conf.py</code>). "
-"Hagyja üresen, ha szeretné általunk, automatikusan tölteni."
 
-#: projects/models.py:362
+#: projects/models.py:443
+msgid ""
+"<strong>Warning: experimental feature</strong>. Custom path from repository "
+"top-level to your <code>.readthedocs.yaml</code>, ex. <code>subpath/docs/."
+"readthedocs.yaml</code>. Leave blank for default value: <code>.readthedocs."
+"yaml</code>."
+msgstr ""
+
+#: projects/models.py:451
 msgid "Featured"
 msgstr "Kiemelt"
 
-#: projects/models.py:364
+#: projects/models.py:453
 msgid "Skip (disable) building this project"
 msgstr ""
 
-#: projects/models.py:372
+#: projects/models.py:461
 msgid "Delisted"
 msgstr ""
 
-#: projects/models.py:374
+#: projects/models.py:463
 msgid ""
 "Delisting a project removes it from Read the Docs search indexing and asks "
 "external search engines to remove it via robots.txt"
 msgstr ""
 
-#: projects/models.py:380
-msgid "Install Project"
-msgstr "Projekt telepítése"
-
-#: projects/models.py:382
-msgid ""
-"Install your project inside a virtualenv using <code>setup.py install</code>"
-msgstr ""
-"Projekt telepítése<code>setup.py</code>használatával virtuális környezetbe."
-
-#: projects/models.py:391
-msgid "Python Interpreter"
-msgstr "Python fordító"
-
-#: projects/models.py:396
-msgid "The Python interpreter used to create the virtual environment."
-msgstr "A virtuális környezet létrehozásához használt Python-értelmező."
-
-#: projects/models.py:402
-msgid "Use system packages"
-msgstr "Rendszer csomagok használata"
-
-#: projects/models.py:404
-msgid "Give the virtual environment access to the global site-packages dir."
-msgstr ""
-"Virtuális környezet engedélyezése a globális csomagok könyvtárai számára."
-
-#: projects/models.py:415
+#: projects/models.py:474
 msgid "Should the project dashboard be public?"
 msgstr ""
 
-#: projects/models.py:422
+#: projects/models.py:481
 msgid "Related projects"
 msgstr "Kapcsolódó projektek"
 
-#: projects/models.py:430 templates/search/elastic_search.html:57
+#: projects/models.py:489 templates/search/elastic_search.html:57
 msgid "Language"
 msgstr "Nyelv"
 
-#: projects/models.py:434
+#: projects/models.py:493
 msgid ""
 "The language the project documentation is rendered in. Note: this affects "
 "your project's URL."
@@ -2512,350 +2609,360 @@ msgstr ""
 "A projektdokumentáció nyelve. Megjegyzés: ez befolyásolja a projekt URL "
 "címét."
 
-#: projects/models.py:442
+#: projects/models.py:501
 msgid "Programming Language"
 msgstr "Programnyelv"
 
-#: projects/models.py:446
+#: projects/models.py:505
 msgid "The primary programming language the project is written in."
 msgstr "A projekt elsődleges programnyelve."
 
-#: projects/models.py:462
+#: projects/models.py:521
 msgid "This project has been built with a webhook"
 msgstr "A projekt webhoroggal épült fel."
 
-#: projects/models.py:466
+#: projects/models.py:525
 msgid "This project has been successfully cloned"
 msgstr "A projekt sikeresen klónozva"
 
-#: projects/models.py:486
+#: projects/models.py:577
+msgid "Enable EPUB build"
+msgstr "EPUB építés engedélyezése"
+
+#: projects/models.py:580
+msgid "Create a EPUB version of your documentation with each build."
+msgstr "EPUB verzió készítése minden építéskor."
+
+#: projects/models.py:584
+msgid "Enable PDF build"
+msgstr "PDF építés engedélyezése"
+
+#: projects/models.py:587
+msgid "Create a PDF version of your documentation with each build."
+msgstr "PDF verzió készítése minden építéskor."
+
+#: projects/models.py:591 projects/models.py:1541
+msgid "Path"
+msgstr "Útvonal"
+
+#: projects/models.py:595
+msgid "The directory where <code>conf.py</code> lives"
+msgstr "<code>conf.py</code> könyvtára"
+
+#: projects/models.py:599
+msgid "Python configuration file"
+msgstr "Python konfigurációs fájl"
+
+#: projects/models.py:604
+msgid ""
+"Path from project root to <code>conf.py</code> file (ex. <code>docs/conf.py</"
+"code>). Leave blank if you want us to find it for you."
+msgstr ""
+"A <code>conf.py</code> fájlhoz vezető út (pld. <code>docs/conf.py</code>). "
+"Hagyja üresen, ha szeretné általunk, automatikusan tölteni."
+
+#: projects/models.py:610
+msgid "Install Project"
+msgstr "Projekt telepítése"
+
+#: projects/models.py:612
+msgid ""
+"Install your project inside a virtualenv using <code>setup.py install</code>"
+msgstr ""
+"Projekt telepítése<code>setup.py</code>használatával virtuális környezetbe."
+
+#: projects/models.py:618
+msgid "Python Interpreter"
+msgstr "Python fordító"
+
+#: projects/models.py:623
+msgid "The Python interpreter used to create the virtual environment."
+msgstr "A virtuális környezet létrehozásához használt Python-értelmező."
+
+#: projects/models.py:627
+msgid "Use system packages"
+msgstr "Rendszer csomagok használata"
+
+#: projects/models.py:629
+msgid "Give the virtual environment access to the global site-packages dir."
+msgstr ""
+"Virtuális környezet engedélyezése a globális csomagok könyvtárai számára."
+
+#: projects/models.py:639
 msgid "project"
 msgstr ""
 
-#: projects/models.py:496
+#: projects/models.py:650
 msgid "Model must have slug"
 msgstr "A modellnek érvényes URL-el kell rendelkeznie"
 
-#: projects/models.py:1300
+#: projects/models.py:1412
 msgid "Subproject nesting is not supported"
 msgstr "Alprojekt beágyazása nem támogatott."
 
-#: projects/models.py:1420 sphinx_domains/models.py:44
+#: projects/models.py:1543
 msgid "Build id"
 msgstr ""
 
-#: projects/models.py:1423
+#: projects/models.py:1546
 msgid "Page search rank"
 msgstr ""
 
-#: projects/models.py:1428
+#: projects/models.py:1551
 msgid "Ignore this file from operations like indexing"
 msgstr ""
 
-#: projects/models.py:1525
+#: projects/models.py:1629
 msgid "Build triggered"
 msgstr ""
 
-#: projects/models.py:1526
+#: projects/models.py:1630
 msgid "Build passed"
 msgstr ""
 
-#: projects/models.py:1543
+#: projects/models.py:1647
 msgid "URL"
 msgstr ""
 
-#: projects/models.py:1545
+#: projects/models.py:1649
 msgid "URL to send the webhook to"
 msgstr "Webhook URL"
 
-#: projects/models.py:1548
+#: projects/models.py:1652
 msgid "Secret used to sign the payload of the webhook"
 msgstr ""
 
-#: projects/models.py:1556
+#: projects/models.py:1660
 msgid "Events to subscribe"
 msgstr ""
 
-#: projects/models.py:1559
+#: projects/models.py:1663
 msgid "JSON payload"
 msgstr ""
 
-#: projects/models.py:1561
+#: projects/models.py:1665
 msgid ""
 "JSON payload to send to the webhook. Check <a href=\"https://docs."
 "readthedocs.io/page/build-notifications.html#variable-substitutions-"
 "reference\">the docs</a> for available substitutions."
 msgstr ""
 
-#: projects/models.py:1669 sphinx_domains/models.py:47
+#: projects/models.py:1770
 msgid "Domain"
 msgstr "Tartomány"
 
-#: projects/models.py:1676
+#: projects/models.py:1777
 msgid "This domain was auto-created"
 msgstr ""
 
-#: projects/models.py:1680
+#: projects/models.py:1781
 msgid "This domain is a CNAME for the project"
 msgstr ""
 
-#: projects/models.py:1685
+#: projects/models.py:1786
 msgid "This domain is the primary one where the documentation is served from"
 msgstr ""
 
-#: projects/models.py:1689
+#: projects/models.py:1790
 msgid "Use HTTPS"
 msgstr "HTTPS használata"
 
-#: projects/models.py:1691
+#: projects/models.py:1792
 msgid "Always use HTTPS for this domain"
 msgstr "Minden esetben HTTPS használata a tartományhoz"
 
-#: projects/models.py:1695
+#: projects/models.py:1796
 msgid "Number of times this domain has been hit"
 msgstr "A tartomány eléréseinek száma"
 
-#: projects/models.py:1700 templates/projects/domain_form.html:49
+#: projects/models.py:1801 templates/projects/domain_form.html:49
 msgid "SSL certificate status"
 msgstr ""
 
-#: projects/models.py:1709
+#: projects/models.py:1810
 msgid "Skip validation process."
 msgstr ""
 
-#: projects/models.py:1715
+#: projects/models.py:1816
 msgid "Start date of the validation process."
 msgstr ""
 
-#: projects/models.py:1726
+#: projects/models.py:1827
 msgid "Set a custom max-age (eg. 31536000) for the HSTS header"
 msgstr ""
 
-#: projects/models.py:1730
+#: projects/models.py:1831
 msgid ""
 "If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:1734
+#: projects/models.py:1835
 msgid "If hsts_max_age > 0, set the preload flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:1889
-msgid "Allow deprecated webhook views"
-msgstr "Elavult webhook nézetek engedélyezése"
-
-#: projects/models.py:1893
-msgid "Do not overwrite context vars in conf.py with Read the Docs context"
-msgstr ""
-"Ne írja felül a conf.py-ban lévő kontextus változóit a Read the Docs "
-"kontextussal"
-
-#: projects/models.py:1899
-msgid "Do not define html_theme_path on Sphinx < 6.0"
+#: projects/models.py:1991
+msgid "MkDocs: Use Read the Docs theme for MkDocs as default theme"
 msgstr ""
 
-#: projects/models.py:1904
-msgid "Use Read the Docs theme for MkDocs as default theme"
-msgstr ""
-"Read the Docs téma használata az MkDocs számára alapértelmezett témaként"
-
-#: projects/models.py:1908
-msgid "Do not shallow clone when cloning git repos"
-msgstr "Do not shallow clone when cloning git repos"
-
-#: projects/models.py:1912
-msgid "Use Docker image labelled as `testing` to build the docs"
-msgstr ""
-"Használja a `testing` címkével ellátott Docker-képet a dokumentáció "
-"létrehozásához."
-
-#: projects/models.py:1916
-msgid "Try alternative method of posting large data"
-msgstr "Próbálja ki a nagyméretű adatok kiküldésének alternatív módszerét"
-
-#: projects/models.py:1920
-msgid "Clean all files used in the build process"
-msgstr ""
-
-#: projects/models.py:1924
-msgid "Upgrade conda before creating the environment"
-msgstr ""
-
-#: projects/models.py:1928
-msgid "Append Read the Docs core requirements to environment.yml file"
-msgstr ""
-
-#: projects/models.py:1933
-msgid ""
-"Pass all versions (including private) into the html context when building "
-"with Sphinx"
-msgstr ""
-
-#: projects/models.py:1939
-msgid ""
-"Cache the environment (virtualenv, conda, pip cache, repository) in storage"
-msgstr ""
-
-#: projects/models.py:1943
-msgid "Limit the amount of concurrent builds"
-msgstr ""
-
-#: projects/models.py:1947
-msgid ""
-"CDN support for a project's public versions when privacy levels are enabled."
-msgstr ""
-
-#: projects/models.py:1951
-msgid "Use Docker gVisor runtime to create build container."
-msgstr ""
-
-#: projects/models.py:1955
-msgid "Record 404s page views."
-msgstr ""
-
-#: projects/models.py:1959
-msgid "Allow forced redirects."
-msgstr ""
-
-#: projects/models.py:1963
-msgid "Disable all page views"
-msgstr ""
-
-#: projects/models.py:1967
-msgid "Disable indexing of sphinx domains"
-msgstr ""
-
-#: projects/models.py:1971
-msgid "Allow usage of the X-RTD-Slug header"
-msgstr ""
-
-#: projects/models.py:1975
-msgid "Use new unresolver implementation for serving documentation files."
-msgstr ""
-
-#: projects/models.py:1981
-msgid "Skip syncing branches"
-msgstr ""
-
-#: projects/models.py:1985
-msgid "Skip syncing tags"
-msgstr ""
-
-#: projects/models.py:1989
-msgid "Skip sync versions task"
-msgstr ""
-
-#: projects/models.py:1993
-msgid "Always run pip install --upgrade"
-msgstr "Mindig futassa le a pip install --upgrade parancsot"
-
-#: projects/models.py:1994
-msgid "Use new pip resolver"
-msgstr ""
-
-#: projects/models.py:1997
-msgid "Don't install the latest version of pip"
+#: projects/models.py:1995
+msgid "Build: Try alternative method of posting large data"
 msgstr ""
 
 #: projects/models.py:1999
-msgid "Use latest version of Sphinx"
-msgstr "Használja a Sphinx legutolsó verzióját!"
-
-#: projects/models.py:2002
-msgid "Install mkdocs 0.17.3 by default"
+msgid "Conda: Append Read the Docs core requirements to environment.yml file"
 msgstr ""
 
 #: projects/models.py:2004
-msgid "Use latest version of MkDocs"
-msgstr ""
-
-#: projects/models.py:2007
-msgid "Use latest version of the Read the Docs Sphinx extension"
-msgstr ""
-
-#: projects/models.py:2013
-msgid "Disable server side search"
-msgstr ""
-
-#: projects/models.py:2017
-msgid "Enable server side search for MkDocs projects"
-msgstr ""
-
-#: projects/models.py:2021
-msgid "Default to fuzzy search for simple search queries"
-msgstr ""
-
-#: projects/models.py:2025
 msgid ""
-"Index content directly from html files instead or relying in other sources"
+"Sphinx: Pass all versions (including private) into the html context when "
+"building with Sphinx"
 msgstr ""
 
-#: projects/models.py:2031
+#: projects/models.py:2010
+msgid "Proxito: Record 404s page views."
+msgstr ""
+
+#: projects/models.py:2014
+msgid "Proxito: Allow forced redirects."
+msgstr ""
+
+#: projects/models.py:2018
+msgid "Proxito: Disable all page views"
+msgstr ""
+
+#: projects/models.py:2022
+msgid "Proxito: Allow usage of the X-RTD-Slug header"
+msgstr ""
+
+#: projects/models.py:2027
 msgid ""
-"List packages installed in the environment (\"pip list\" or \"conda list\") "
-"on build's output"
+"Proxito: Use proxied APIs (/_/*) with the custom prefix if the project has "
+"one (Project.custom_prefix)."
 msgstr ""
 
-#: projects/models.py:2037
-msgid ""
-"Use remote listing in VCS (e.g. git ls-remote) if supported for sync versions"
+#: projects/models.py:2032
+msgid "Dashboard: Allow project to use the version warning banner."
 msgstr ""
 
-#: projects/models.py:2041
-msgid "Use \"-j auto\" when calling sphinx-build"
+#: projects/models.py:2038
+msgid "Webhook: Skip syncing branches"
 msgstr ""
 
-#: projects/models.py:2045
-msgid "Use regular sphinx builders instead of custom RTD builders"
+#: projects/models.py:2042
+msgid "Webhook: Skip syncing tags"
+msgstr ""
+
+#: projects/models.py:2046
+msgid "Webhook: Skip sync versions task"
 msgstr ""
 
 #: projects/models.py:2050
+msgid "Build: Always run pip install --upgrade"
+msgstr ""
+
+#: projects/models.py:2051
+msgid "Build: Use new pip resolver"
+msgstr ""
+
+#: projects/models.py:2054
+msgid "Build: Don't install the latest version of pip"
+msgstr ""
+
+#: projects/models.py:2058
+msgid "Sphinx: Use latest version of the Read the Docs Sphinx extension"
+msgstr ""
+
+#: projects/models.py:2063
 msgid ""
-"Cancel triggered/running builds when a new one with same project/version "
-"arrives"
-msgstr ""
-
-#: projects/models.py:2055
-msgid "Do not create index.md or README.rst if the project does not have one."
-msgstr ""
-
-#: projects/models.py:2059
-msgid "Use rclone for syncing files to the media storage."
+"Build: Install all the latest versions of Read the Docs core requirements"
 msgstr ""
 
 #: projects/models.py:2070
+msgid "Search: Disable server side search"
+msgstr ""
+
+#: projects/models.py:2074
+msgid "Search: Enable server side search for MkDocs projects"
+msgstr ""
+
+#: projects/models.py:2078
+msgid "Search: Default to fuzzy search for simple search queries"
+msgstr ""
+
+#: projects/models.py:2083
+msgid "Build: Set scale-in protection before/after building."
+msgstr ""
+
+#: projects/models.py:2089
+msgid ""
+"Proxito: Inject 'readthedocs-addons.js' as <script> HTML tag in responses."
+msgstr ""
+
+#: projects/models.py:2094
+msgid "Addons: Disable Analytics."
+msgstr ""
+
+#: projects/models.py:2098
+msgid "Addons: Disable Doc Diff."
+msgstr ""
+
+#: projects/models.py:2102
+msgid "Addons: Disable EthicalAds."
+msgstr ""
+
+#: projects/models.py:2106
+msgid "Addons: Disable External version warning."
+msgstr ""
+
+#: projects/models.py:2110
+msgid "Addons: Disable Flyout."
+msgstr ""
+
+#: projects/models.py:2114
+msgid "Addons: Disable Non latest version warning."
+msgstr ""
+
+#: projects/models.py:2118
+msgid "Addons: Disable Search."
+msgstr ""
+
+#: projects/models.py:2122
+msgid "Addons: Disable Hotkeys."
+msgstr ""
+
+#: projects/models.py:2135
 msgid "Feature identifier"
 msgstr "Jellemző azonosítója"
 
-#: projects/models.py:2075
+#: projects/models.py:2140
 msgid "Date feature was added"
 msgstr "Dátum jellemző hozzáadva"
 
-#: projects/models.py:2081
+#: projects/models.py:2146
 msgid "Default all past projects to True"
 msgstr ""
 
-#: projects/models.py:2085
+#: projects/models.py:2150
 msgid "Default all future projects to True"
 msgstr ""
 
-#: projects/models.py:2107
+#: projects/models.py:2172
 msgid "Name of the environment variable"
 msgstr "Környezeti változó neve"
 
-#: projects/models.py:2111
+#: projects/models.py:2176
 msgid "Value of the environment variable"
 msgstr "Környezeti változó értéke"
 
-#: projects/models.py:2116
+#: projects/models.py:2181
 msgid "Project where this variable will be used"
 msgstr "Projektek ahol a változó használt"
 
-#: projects/models.py:2122
+#: projects/models.py:2187
 msgid "Expose this environment variable in PR builds?"
 msgstr ""
 
-#: projects/notifications.py:27
+#: projects/notifications.py:21
 msgid ""
 "Your primary email address is not verified. Please <a "
 "href=\"{{account_email_url}}\">verify it here</a>."
@@ -2863,7 +2970,7 @@ msgstr ""
 "Elsődleges e-mail címe nincs ellenőrizve. Kérjük <a "
 "href=\"{{account_email_url}}\">ellenőrizze itt</a>."
 
-#: projects/tasks/utils.py:125
+#: projects/tasks/utils.py:133
 msgid ""
 "This build was terminated due to inactivity. If you continue to encounter "
 "this error, file a support request with and reference this build id ({})."
@@ -2872,32 +2979,67 @@ msgstr ""
 "tapasztalja, nyújtson be támogatási kérelmet, és hivatkozzon erre a build "
 "azonosítóra: ({})."
 
-#: projects/validators.py:15
+#: projects/validators.py:18
 msgid "Enter a valid plain or internationalized domain name value"
 msgstr ""
 "Adjon meg egy érvényes egyszerű vagy nemzetköziesített tartománynév értéket."
 
-#: projects/validators.py:27
+#: projects/validators.py:30
 msgid "The domain name can't be an IP address."
 msgstr ""
 
-#: projects/validators.py:56
+#: projects/validators.py:58
 msgid "Invalid character in the URL"
 msgstr "Érvénytelen karakter az URL-ben"
 
-#: projects/validators.py:77
+#: projects/validators.py:79
 msgid "Invalid scheme for URL"
 msgstr "Érvénytelen séma az URL-ben"
 
-#: projects/views/private.py:150 projects/views/private.py:160
+#: projects/validators.py:100
+msgid ""
+"Use a relative path. It should not begin with '/'. The path is relative to "
+"the root of your repository."
+msgstr ""
+
+#: projects/validators.py:107
+msgid "The path cannot end with '/', as it cannot be a directory."
+msgstr ""
+
+#: projects/validators.py:112
+msgid "Found invalid sequence in path: '..'"
+msgstr ""
+
+#: projects/validators.py:119
+#, python-brace-format
+msgid ""
+"Found invalid character. Avoid these characters: <code>{invalid_characters}</"
+"code>"
+msgstr ""
+
+#: projects/validators.py:132
+#, python-brace-format
+msgid "The only allowed filename is <code>{filename}</code>."
+msgstr ""
+
+#: projects/validators.py:141
+#, python-brace-format
+msgid "The only allowed filenames are <code>{filenames}</code>."
+msgstr ""
+
+#: projects/views/private.py:155 projects/views/private.py:165
 msgid "Project settings updated"
 msgstr "Projekt beállításai frissítve"
 
-#: projects/views/private.py:169
+#: projects/views/private.py:174
+msgid "Project addons updated"
+msgstr ""
+
+#: projects/views/private.py:183
 msgid "Project deleted"
 msgstr "Projekt törölve"
 
-#: projects/views/private.py:387
+#: projects/views/private.py:369
 #, python-brace-format
 msgid ""
 "There is a problem with your {service} account, try reconnecting your "
@@ -2906,14 +3048,24 @@ msgstr ""
 "Probléma merült fel a  {service} fiókjával, próbáljon újra csatlakozni a  <a "
 "href=\"{url}\">kapcsolt szolgáltatások oldalon</a>."
 
-#: projects/views/private.py:509
+#: projects/views/private.py:491
 #, python-brace-format
 msgid "{username} is the last owner, can't be removed"
 msgstr ""
 
-#: projects/views/private.py:975
+#: projects/views/private.py:920
 msgid "Project has been opted out from advertisement support"
 msgstr "A projektet kivonták a reklámtámogatásból"
+
+#: proxito/exceptions.py:96
+msgctxt "Names an object not found in a 404 error"
+msgid "subproject"
+msgstr ""
+
+#: proxito/exceptions.py:141
+msgctxt "Names an object not found in a 404 error"
+msgid "translation"
+msgstr ""
 
 #: redirects/models.py:18
 msgid "301 - Permanent Redirect"
@@ -2959,43 +3111,43 @@ msgstr ""
 msgid "Absolute or relative URL. Example: <b>/tutorial/install.html</b>"
 msgstr "Abszolút vagy relatív URL. Például: <b>/tutorial/install.html</b>"
 
-#: redirects/models.py:48
+#: redirects/models.py:47
 msgid "The type of redirect you wish to use."
 msgstr "Használni kívánt átirányítás típusa."
 
-#: redirects/models.py:63
+#: redirects/models.py:62
 msgid "Redirect Type"
 msgstr "Átirányítás típusa"
 
-#: redirects/models.py:70
+#: redirects/models.py:69
 msgid "From URL"
 msgstr "URL címről"
 
-#: redirects/models.py:88
+#: redirects/models.py:87
 msgid "To URL"
 msgstr "URL címre"
 
-#: redirects/models.py:95
+#: redirects/models.py:94
 msgid "Force redirect"
 msgstr ""
 
-#: redirects/models.py:98
+#: redirects/models.py:97
 msgid "Apply the redirect even if the page exists."
 msgstr ""
 
-#: redirects/models.py:102
+#: redirects/models.py:101
 msgid "HTTP Status"
 msgstr "HTTP státusz"
 
-#: redirects/models.py:114
+#: redirects/models.py:113
 msgid "redirect"
 msgstr "átirányítás"
 
-#: redirects/models.py:115
+#: redirects/models.py:114
 msgid "redirects"
 msgstr "átirányítások"
 
-#: redirects/models.py:131
+#: redirects/models.py:130
 msgid "Redirect: {}"
 msgstr "Átirányítás: {}"
 
@@ -3052,205 +3204,126 @@ msgstr ""
 msgid "Total results"
 msgstr ""
 
-#: settings/base.py:412
+#: settings/base.py:445
 msgid "Catalan"
 msgstr "Katalán"
 
-#: settings/base.py:413
+#: settings/base.py:446
 msgid "English"
 msgstr "Angol"
 
-#: settings/base.py:414
+#: settings/base.py:447
 msgid "Spanish"
 msgstr "Spanyol"
 
-#: settings/base.py:415
+#: settings/base.py:448
 msgid "Brazilian Portuguese"
 msgstr "Brazil portugál"
 
-#: settings/base.py:416
+#: settings/base.py:449
 msgid "Norwegian Bokmål"
 msgstr "Norvég"
 
-#: settings/base.py:417
+#: settings/base.py:450
 msgid "French"
 msgstr "Francia"
 
-#: settings/base.py:418
+#: settings/base.py:451
 msgid "Russian"
 msgstr "Orosz"
 
-#: settings/base.py:419
+#: settings/base.py:452
 msgid "German"
 msgstr "Német"
 
-#: settings/base.py:420
+#: settings/base.py:453
 msgid "Galician"
 msgstr "Gall"
 
-#: settings/base.py:421
+#: settings/base.py:454
 msgid "Vietnamese"
 msgstr "Vietnámi"
 
-#: settings/base.py:422
+#: settings/base.py:455
 msgid "Simplified Chinese"
 msgstr "Egyszerűsített kínai"
 
-#: settings/base.py:423
+#: settings/base.py:456
 msgid "Traditional Chinese"
 msgstr "Hagyományos kínai"
 
-#: settings/base.py:424
+#: settings/base.py:457
 msgid "Japanese"
 msgstr "Japán"
 
-#: settings/base.py:425
+#: settings/base.py:458
 msgid "Ukrainian"
 msgstr "Ukrán"
 
-#: settings/base.py:426
+#: settings/base.py:459
 msgid "Italian"
 msgstr "Olasz"
 
-#: settings/base.py:427
+#: settings/base.py:460
 msgid "Korean"
 msgstr "Koreai"
 
-#: sphinx_domains/models.py:55
-msgid "Display Name"
-msgstr ""
-
-#: sphinx_domains/models.py:63
-msgid "Type Display"
-msgstr ""
-
-#: sphinx_domains/models.py:68
-msgid "Doc Name"
-msgstr ""
-
-#: sphinx_domains/models.py:72
-msgid "Doc Display"
-msgstr ""
-
-#: sphinx_domains/models.py:77
-msgid "Anchor"
-msgstr ""
-
-#: subscriptions/forms.py:24
-#, python-brace-format
-msgid ""
-"Check our <a href=\"{pricing_page}\">pricing page</a> for more information "
-"about each plan."
-msgstr ""
-
-#: subscriptions/models.py:36
-msgid "Stripe ID"
-msgstr ""
-
-#: subscriptions/models.py:37
-msgid "Price"
-msgstr ""
-
-#: subscriptions/models.py:38
-msgid "Trial"
-msgstr ""
-
-#: subscriptions/models.py:43
-msgid "For organizations"
-msgstr ""
-
-#: subscriptions/models.py:51
-msgid "Published"
-msgstr ""
-
-#: subscriptions/models.py:110
+#: subscriptions/constants.py:23
 msgid "Custom domain"
 msgstr ""
 
-#: subscriptions/models.py:111
+#: subscriptions/constants.py:24
 msgid "CDN public documentation"
 msgstr ""
 
-#: subscriptions/models.py:112
+#: subscriptions/constants.py:25
 msgid "Custom SSL configuration"
 msgstr ""
 
-#: subscriptions/models.py:113
+#: subscriptions/constants.py:26
 msgid "Support SLA"
 msgstr ""
 
-#: subscriptions/models.py:114
+#: subscriptions/constants.py:27
 msgid "Private documentation"
 msgstr ""
 
-#: subscriptions/models.py:115
+#: subscriptions/constants.py:28
 msgid "Embed content via API"
 msgstr ""
 
-#: subscriptions/models.py:116
+#: subscriptions/constants.py:29
 msgid "Search analytics"
 msgstr ""
 
-#: subscriptions/models.py:117
+#: subscriptions/constants.py:30
 msgid "Pageview analytics"
 msgstr ""
 
-#: subscriptions/models.py:118
+#: subscriptions/constants.py:31
 msgid "Concurrent builds"
 msgstr ""
 
-#: subscriptions/models.py:119
+#: subscriptions/constants.py:32
 msgid "Single sign on (SSO) with Google"
 msgstr ""
 
-#: subscriptions/models.py:120
+#: subscriptions/constants.py:33
 msgid "Custom URLs"
 msgstr ""
 
-#: subscriptions/models.py:121
+#: subscriptions/constants.py:34
 msgid "Audit logs"
 msgstr ""
 
-#: subscriptions/models.py:122
-msgid "Record every page view"
+#: subscriptions/constants.py:35
+msgid "Audit logs for every page view"
 msgstr ""
 
-#: subscriptions/models.py:135
-msgid "Numeric value"
-msgstr ""
-
-#: subscriptions/models.py:169
-#: subscriptions/templates/subscriptions/subscription_detail.html:31
-msgid "Plan"
-msgstr ""
-
-#: subscriptions/models.py:179
-msgid "Locked plan"
-msgstr ""
-
-#: subscriptions/models.py:181
-msgid "Locked plan for custom contracts"
-msgstr ""
-
-#: subscriptions/models.py:188
-msgid "Stripe subscription ID"
-msgstr ""
-
-#: subscriptions/models.py:193
-#: subscriptions/templates/subscriptions/subscription_detail.html:62
-msgid "Subscription status"
-msgstr ""
-
-#: subscriptions/models.py:194
-msgid "Start date"
-msgstr ""
-
-#: subscriptions/models.py:196
-msgid "End date"
-msgstr ""
-
-#: subscriptions/models.py:202
-msgid "Trial end date"
+#: subscriptions/forms.py:29
+msgid ""
+"Check our <a href=\"https://about.readthedocs.com/pricing/\">pricing page</"
+"a> for more information about each plan."
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:7
@@ -3266,39 +3339,51 @@ msgid ""
 "Subscription</strong> below."
 msgstr ""
 
-#: subscriptions/templates/subscriptions/subscription_detail.html:42
-msgid "Plan features:"
+#: subscriptions/templates/subscriptions/subscription_detail.html:31
+msgid "Plan"
 msgstr ""
 
-#: subscriptions/templates/subscriptions/subscription_detail.html:53
+#: subscriptions/templates/subscriptions/subscription_detail.html:42
+msgid "Extra products:"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:61
+msgid "Features:"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:72
 msgid "Signed up"
 msgstr ""
 
 #. Translators: this is the subscription start date, used here as "4 days ago" or "5 months ago"
-#: subscriptions/templates/subscriptions/subscription_detail.html:56
+#: subscriptions/templates/subscriptions/subscription_detail.html:75
 #, python-format
 msgid "%(time_since_signup)s ago"
 msgstr ""
 
-#: subscriptions/templates/subscriptions/subscription_detail.html:68
+#: subscriptions/templates/subscriptions/subscription_detail.html:81
+msgid "Subscription status"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:87
 msgid "Trial ends"
 msgstr ""
 
-#: subscriptions/templates/subscriptions/subscription_detail.html:73
+#: subscriptions/templates/subscriptions/subscription_detail.html:92
 msgid "Subscription ends"
 msgstr ""
 
-#: subscriptions/templates/subscriptions/subscription_detail.html:84
+#: subscriptions/templates/subscriptions/subscription_detail.html:103
 msgid "Manage Subscription"
 msgstr ""
 
-#: subscriptions/templates/subscriptions/subscription_detail.html:88
+#: subscriptions/templates/subscriptions/subscription_detail.html:107
 msgid ""
 "Use the button above to see past invoices, change your plan, and update your "
 "billing information."
 msgstr ""
 
-#: subscriptions/templates/subscriptions/subscription_detail.html:96
+#: subscriptions/templates/subscriptions/subscription_detail.html:115
 #, python-format
 msgid ""
 "<strong>You don't currently have an active subscription</strong>. You must "
@@ -3306,40 +3391,22 @@ msgid ""
 "fits your organization to continue using Read the Docs for Business."
 msgstr ""
 
-#: subscriptions/templates/subscriptions/subscription_detail.html:104
+#: subscriptions/templates/subscriptions/subscription_detail.html:123
 msgid "Create Subscription"
 msgstr ""
 
-#: subscriptions/views.py:40
+#: subscriptions/views.py:43
 msgid "Your plan has been upgraded!"
 msgstr ""
 
-#: subscriptions/views.py:98
+#: subscriptions/views.py:100
 msgid ""
 "There was an error connecting to Stripe, please try again in a few minutes."
 msgstr ""
 
-#: templates/401.html:6 templates/404.html:6
+#: templates/401.html:6
 msgid "Maze Found"
 msgstr "Labirintus talált"
-
-#: templates/404.html:19
-msgctxt "404 page"
-msgid ""
-"This is a 404 error page. The link you have followed or the URL that you "
-"entered does not exist. It might be that the documentation has been updated, "
-"or this page has been removed."
-msgstr ""
-
-#: templates/404.html:21
-msgid "this site"
-msgstr ""
-
-#: templates/404.html:21
-#, python-format
-msgctxt "404 page"
-msgid "Back to the front page of %(site_name)s"
-msgstr ""
 
 #: templates/429.html:6
 msgid "Too many requests"
@@ -3665,16 +3732,26 @@ msgstr ""
 "<strong>Projekt Telepítés</strong> beállításait a  <a "
 "href=\"%(advanced_url)s\">haladó beállításokban</a>."
 
-#: templates/builds/build_detail.html:167
+#: templates/builds/build_detail.html:169
 #, python-format
 msgid ""
-"<strong>Configure your documentation builds!</strong> Adding a <a "
-"href=\"%(config_file_link)s\">.readthedocs.yaml</a> file to your project is "
-"the recommended way to configure your documentation builds. You can declare "
-"dependencies, set up submodules, and many other great features."
+"<strong>Your builds will stop working soon!</strong><br/> \"build.image\" "
+"config key is deprecated and it will be removed soon. <a "
+"href=\"%(config_file_link)s\">Read our blog post to know how to migrate to "
+"new key \"build.os\"</a> and ensure your project continues building "
+"successfully."
 msgstr ""
 
 #: templates/builds/build_detail.html:181
+#, python-format
+msgid ""
+"<strong>Your builds will stop working soon!</strong><br/> Configuration "
+"files will <strong>soon be required</strong> by projects, and will no longer "
+"be optional. <a href=\"%(config_file_link)s\">Read our blog post to create "
+"one</a> and ensure your project continues building successfully."
+msgstr ""
+
+#: templates/builds/build_detail.html:196
 #, python-format
 msgid ""
 "<strong>The <code>\"build.commands\"</code> feature is in beta, and could "
@@ -3683,36 +3760,36 @@ msgid ""
 "limitations and potential issues."
 msgstr ""
 
-#: templates/builds/build_detail.html:193
+#: templates/builds/build_detail.html:208
 msgid "Show full build output"
 msgstr "A teljes építés kimenetének mutatása"
 
-#: templates/builds/build_detail.html:199
+#: templates/builds/build_detail.html:214
 msgid "Build Output"
 msgstr "Építés kimenete"
 
-#: templates/builds/build_detail.html:203
+#: templates/builds/build_detail.html:218
 msgid "Setup Output"
 msgstr "Kimenet beállításai"
 
-#: templates/builds/build_detail.html:208
+#: templates/builds/build_detail.html:223
 msgid "Environment Standard Error"
 msgstr "Szabványos környezeti hiba"
 
-#: templates/builds/build_detail.html:214
+#: templates/builds/build_detail.html:229
 msgid "Build Errors"
 msgstr "Építés hibái"
 
-#: templates/builds/build_detail.html:232
+#: templates/builds/build_detail.html:253
 #, python-format
 msgid "<a href=\"%(url)s\">Report any build issues here</a>."
 msgstr "<a href=\"%(url)s\">Bármilyen építési probléma jelentése itt</a>."
 
-#: templates/builds/build_detail.html:257
+#: templates/builds/build_detail.html:278
 msgid "Command time:"
 msgstr "Parancs ideje:"
 
-#: templates/builds/build_detail.html:262
+#: templates/builds/build_detail.html:283
 msgid "Return"
 msgstr "Visszatérés"
 
@@ -3766,7 +3843,7 @@ msgid "No automation rules are currently configured."
 msgstr ""
 
 #: templates/builds/versionautomationrule_list.html:85
-#: templates/projects/integration_webhook_detail.html:83
+#: templates/projects/integration_webhook_detail.html:108
 #: templates/projects/webhook_form.html:47
 msgid "Recent Activity"
 msgstr ""
@@ -3779,7 +3856,7 @@ msgid ""
 msgstr ""
 
 #: templates/builds/versionautomationrule_list.html:101
-#: templates/projects/integration_webhook_detail.html:99
+#: templates/projects/integration_webhook_detail.html:124
 #: templates/projects/webhook_form.html:63
 msgid "There is no recent activity"
 msgstr ""
@@ -3852,7 +3929,6 @@ msgstr "Bejelentkezés"
 
 #: templates/core/project_bar_base.html:12
 #: templates/core/project_list_detailed.html:34
-#: templates/core/project_list_featured.html:13
 #: templates/projects/project_version_list.html:53
 msgid "View Docs"
 msgstr "Dokumentációk megtekintése"
@@ -3976,27 +4052,122 @@ msgid "No builds"
 msgstr "Nincsenek építések"
 
 #: templates/core/project_list_detailed.html:36
-#: templates/core/project_list_featured.html:15
 msgid "No Docs"
 msgstr "Nincs dokumentáció"
 
 #: templates/core/project_list_detailed.html:44
-#: templates/core/project_list_featured.html:23
 msgid "No projects found"
 msgstr "Nem található projekt"
 
-#: templates/core/widesearchbar.html:4
+#: templates/core/widesearchbar.html:5
 msgid "Search all the docs"
 msgstr "Keresés minden dokumentumban"
 
-#: templates/core/widesearchbar.html:12
+#: templates/core/widesearchbar.html:13
 msgid "Search Read the Docs"
 msgstr "Keresés a Read the Docs-on"
 
 #. Translators: This is about starting a search
-#: templates/core/widesearchbar.html:16
+#: templates/core/widesearchbar.html:17
 msgid "Let's do this."
 msgstr "Csináljuk ezt!"
+
+#: templates/errors/404/base.html:6 templates/errors/404/base.html:11
+msgid "404 Not Found"
+msgstr ""
+
+#: templates/errors/404/base.html:15
+msgid ""
+"You have encountered a 404 on Read the Docs. You are either looking for a "
+"page that does not exist or a project that has been removed."
+msgstr ""
+
+#: templates/errors/404/dns.html:7
+#, python-format
+msgid "The host \"%(domain)s\" is unknown to Read the Docs"
+msgstr ""
+
+#: templates/errors/404/dns.html:11
+#, python-format
+msgid ""
+"If you control this domain and believe this is in error, please review our "
+"<a href=\"%(docsurl)s\">custom domain documentation</a>. In the past, we "
+"allowed custom domains to point to us without configuring the domain in the "
+"Read the Docs dashboard and we attempted to intelligently guess the correct "
+"project based on DNS settings. Now, we believe that explicit is better than "
+"implicit. Below are some steps to help you get your domain working again:"
+msgstr ""
+"Ha te irányítod ezt a domaint, és úgy gondolod, hogy ez hibás, kérjük, "
+"olvassa el az <a href=\"%(docsurl)s\">egyéni domainekre vonatkozó "
+"dokumentációt</a>. Korábban megengedtük, hogy az egyéni tartományok ránk "
+"mutassanak, anélkül, hogy konfigurálnánk a tartományt a Dokumentumok "
+"olvasása irányítópulton, és megpróbáltuk intelligensen kitalálni a helyes "
+"projektet a DNS-beállítások alapján. Most úgy gondoljuk, hogy jobb ezt "
+"beállítani, mint kikövetkeztetni. Az alábbiakban bemutatunk néhány lépést, "
+"amelyek segítenek a domain újbóli működésében: "
+
+#: templates/errors/404/dns.html:23 templates/errors/404/include_tips.html:3
+msgid "Are you the project owner?"
+msgstr ""
+
+#: templates/errors/404/dns.html:25 templates/errors/404/include_tips.html:5
+msgid "Here are some tips to address 404 errors:"
+msgstr ""
+
+#: templates/errors/404/dns.html:28
+msgid "Ensure you have a CNAME record pointing to <code>readthedocs.io</code>"
+msgstr ""
+"Ellenőrizze, hogy CNAME rekord a <code>readthedocs.io</code> domainre mutat."
+
+#: templates/errors/404/dns.html:29
+msgid ""
+"Add your desired domain in the Read the Docs dashboard for your project "
+"(under Your Project &gt;&gt; Admin &gt;&gt; Domains)"
+msgstr ""
+"Adja hozzá a projektjéhez a használni kívánt domaint a Read the Docs "
+"írányítópultján.  (Saját projekt &gt;&gt; Adminisztráció &gt;&gt; Domainek)"
+
+#: templates/errors/404/include_error_message.html:4
+#, python-format
+msgid ""
+"You are browsing the documentation of <code>%(project_slug)s</code>. The "
+"%(not_found_subject)s you are looking for was not found."
+msgstr ""
+
+#: templates/errors/404/include_error_message.html:11
+msgid ""
+"Documentation changes over time and pages are moved around. You can try to "
+"navigate to <a href=\"/\">the index page</a> of the project and use its "
+"navigation, or search for a similar page."
+msgstr ""
+
+#: templates/errors/404/include_search.html:3
+msgid "Try searching?"
+msgstr ""
+
+#: templates/errors/404/include_tips.html:8
+msgid "Use your own custom 404 page:"
+msgstr ""
+
+#: templates/errors/404/include_tips.html:8
+#: templates/errors/404/include_tips.html:9
+msgid "Read more"
+msgstr ""
+
+#: templates/errors/404/include_tips.html:9
+msgid "Create redirects when you move contents:"
+msgstr ""
+
+#: templates/errors/404/no_project.html:9
+msgid "no domain"
+msgstr ""
+
+#: templates/errors/404/no_project.html:9
+#, python-format
+msgid ""
+"The project for <code>%(domain)s</code> that you are looking for either does "
+"not exist, has been deleted or doesn't have any successful builds yet."
+msgstr ""
 
 #: templates/flagging/flag_confirm.html:6
 #: templates/flagging/flag_confirm.html:11
@@ -4115,22 +4286,18 @@ msgstr ""
 msgid "Read the Tutorial"
 msgstr ""
 
-#: templates/homepage.html:123
-msgid "Featured Projects"
-msgstr "Kiemelt projektek"
-
-#: templates/homepage.html:137
+#: templates/homepage.html:120
 msgid "About Read the Docs"
 msgstr ""
 
-#: templates/homepage.html:140
+#: templates/homepage.html:123
 msgid ""
 "Read the Docs has grown substantially since its beginning as a weekend "
 "project and is closing in on being a top-1000 site on the internet. Today, "
 "we:"
 msgstr ""
 
-#: templates/homepage.html:148
+#: templates/homepage.html:131
 msgid ""
 "<ul class=\"donate-about\"> <li>Serve over <b>55 million pages</b> of "
 "documentation a month</li> <li>Serve over <b>40 TB</b> of documentation a "
@@ -4140,11 +4307,11 @@ msgid ""
 "engineers</li> </ul>"
 msgstr ""
 
-#: templates/homepage.html:160
+#: templates/homepage.html:143
 msgid "Read the Docs is funded by the community"
 msgstr "A Read the Docs-t a közösség finanszírozza"
 
-#: templates/homepage.html:166
+#: templates/homepage.html:149
 #, python-format
 msgid ""
 "We fund our operations through <a href=\"https://www.ethicalads.io/"
@@ -4155,7 +4322,7 @@ msgid ""
 "html\">sponsors</a>."
 msgstr ""
 
-#: templates/homepage.html:175
+#: templates/homepage.html:158
 msgid ""
 "Read the Docs is open source and community supported. It depends on users "
 "like you to contribute to development, support, and operations. You can "
@@ -4165,7 +4332,7 @@ msgid ""
 "who helps us run the site. Read the Docs wouldn't be possible without them."
 msgstr ""
 
-#: templates/homepage.html:185
+#: templates/homepage.html:168
 msgid ""
 "Hosting for the project is graciously provided by <a href=\"https://aws."
 "amazon.com/\">AWS</a> and <a href=\"https://cloudflare.com/\">Cloudflare</a>."
@@ -4268,9 +4435,7 @@ msgid "Set advertising preferences"
 msgstr ""
 
 #: templates/profiles/private/advertising_profile.html:15
-msgid ""
-"Since you are a Gold member or Supporter, you are <strong>ad-free</strong> "
-"for as long as you are logged-in. Thank you for supporting Read the Docs."
+msgid "Thank you for supporting Read the Docs!"
 msgstr ""
 
 #: templates/profiles/private/advertising_profile.html:22
@@ -4319,13 +4484,9 @@ msgstr ""
 msgid "Be careful! This can not be undone!"
 msgstr ""
 
-#: templates/profiles/private/edit_profile.html:5
-#: templates/profiles/private/edit_profile.html:9
+#: templates/profiles/private/edit_profile.html:6
+#: templates/profiles/private/edit_profile.html:10
 msgid "Edit your profile"
-msgstr ""
-
-#: templates/profiles/private/edit_profile.html:14
-msgid "OK, save it!"
 msgstr ""
 
 #: templates/profiles/private/security_log.html:15
@@ -4433,7 +4594,7 @@ msgstr ""
 #: templates/projects/domain_list.html:56
 #: templates/projects/project_import.html:170
 #: templates/projects/project_notifications.html:79
-#: templates/projects/project_translations.html:71
+#: templates/projects/project_translations.html:78
 #: templates/projects/project_users.html:53
 msgid "Add"
 msgstr ""
@@ -4483,6 +4644,23 @@ msgid ""
 "You can set additional configuration options for your documentation in a <a "
 "href=\"https://docs.readthedocs.io/en/stable/config-file/v2.html\">."
 "readthedocs.yml</a> file."
+msgstr ""
+
+#: templates/projects/import_config.html:5
+msgid "Add a project configuration file"
+msgstr ""
+
+#: templates/projects/import_config.html:8
+msgid ""
+"Make sure your project has a <code>.readthedocs.yaml</code> configuration "
+"file at the root directory of your repository. This file is required by Read "
+"the Docs to build your documentation. You can <a href=\"https://docs."
+"readthedocs.io/en/stable/config-file/v2.html\">read more about our "
+"configuration file in our documentation</a>."
+msgstr ""
+
+#: templates/projects/import_config.html:16
+msgid "Here is an example configuration file for a project using Sphinx:"
 msgstr ""
 
 #: templates/projects/import_extra.html:5
@@ -4536,14 +4714,6 @@ msgstr ""
 msgid "Add integration"
 msgstr ""
 
-#: templates/projects/integration_generic_webhook_detail.html:7
-msgid "The following parameters are configured for this integration:"
-msgstr ""
-
-#: templates/projects/integration_generic_webhook_detail.html:14
-msgid "Token"
-msgstr ""
-
 #: templates/projects/integration_list.html:38
 msgid "No integrations are currently configured."
 msgstr ""
@@ -4557,13 +4727,13 @@ msgstr ""
 msgid "Integration - %(type)s"
 msgstr ""
 
-#: templates/projects/integration_webhook_detail.html:21
+#: templates/projects/integration_webhook_detail.html:22
 msgid ""
 "This integration is being managed automatically by Read the Docs. If it "
 "isn't functioning correctly, try re-syncing the webhook:"
 msgstr ""
 
-#: templates/projects/integration_webhook_detail.html:42
+#: templates/projects/integration_webhook_detail.html:38
 msgid ""
 "This integration is not managed by Read the Docs currently. If this "
 "integration is not functioning correctly, you can try re-syncing it. "
@@ -4571,24 +4741,41 @@ msgid ""
 "can use the following address to manually configure this webhook."
 msgstr ""
 
-#: templates/projects/integration_webhook_detail.html:52
+#: templates/projects/integration_webhook_detail.html:50
 msgid ""
 "To manually configure this webhook with your provider, use the following "
-"address:"
+"information:"
 msgstr ""
 
-#: templates/projects/integration_webhook_detail.html:67
+#: templates/projects/integration_webhook_detail.html:59
+msgid "Webhook URL:"
+msgstr ""
+
+#: templates/projects/integration_webhook_detail.html:68
+#: templates/projects/integration_webhook_detail.html:73
+msgid "Secret:"
+msgstr ""
+
+#: templates/projects/integration_webhook_detail.html:81
+msgid ""
+"This integration does not have a secret, the authenticity of the incoming "
+"webhook cannot be verified. <strong>Click on \"Resync webhook\" to generate "
+"a secret.</strong> Read more in our <a href=\"https://blog.readthedocs.com/"
+"security-update-on-incoming-webhooks/\">blog post</a>."
+msgstr ""
+
+#: templates/projects/integration_webhook_detail.html:92
 msgid ""
 "For more information on manually configuring a webhook, refer to <a "
-"href=\"https://docs.readthedocs.io/page/webhooks.html\"> our webhook "
-"documentation </a>"
+"href=\"https://docs.readthedocs.io/page/guides/setup/git-repo-automatic."
+"html\"> our webhook documentation. </a>"
 msgstr ""
 
-#: templates/projects/integration_webhook_detail.html:79
+#: templates/projects/integration_webhook_detail.html:104
 msgid "Resync webhook"
 msgstr ""
 
-#: templates/projects/integration_webhook_detail.html:108
+#: templates/projects/integration_webhook_detail.html:133
 msgid "Delete webhook"
 msgstr ""
 
@@ -4737,10 +4924,13 @@ msgstr ""
 #: templates/projects/project_advanced_settings_helptext.html:3
 #, python-format
 msgid ""
-"These settings can be configured using a <a "
-"href=\"%(config_file_link)s\">configuration file</a>. That's the recommended "
-"way to set up your project. <strong>Settings listed here are ignored when "
-"using a configuration file.</strong"
+"Usage of the below settings is <strong>deprecated</strong> and support for "
+"these fields was removed on <strong>September 25th, 2023</strong>. Their "
+"values are shown here in read-only to allow you to migrate to the YAML "
+"config file if you haven't already. <br><br> Read our blog post <a "
+"href=\"%(deprecation_link)s\" target=\"_blank\">Migrate your project to ."
+"readthedocs.yaml configuration file v2</a> to learn how to perform the "
+"migration."
 msgstr ""
 
 #: templates/projects/project_advertising.html:5
@@ -5126,27 +5316,34 @@ msgstr ""
 msgid "To add a translation to your project, select a project below."
 msgstr ""
 
-#: templates/projects/project_translations.html:23
+#: templates/projects/project_translations.html:24
+#, python-format
+msgid ""
+"This project is <a href=\"%(advanced_settings_url)s\">configured</a> with a "
+"versioning scheme that doesn't support translations."
+msgstr ""
+
+#: templates/projects/project_translations.html:30
 #, python-format
 msgid ""
 "This project is already configured as the <code>%(language)s</code> "
 "translation of \"%(main_project)s\". Nested translations are not supported."
 msgstr ""
 
-#: templates/projects/project_translations.html:31
+#: templates/projects/project_translations.html:38
 #, python-format
 msgid "View translations of \"%(main_project)s\"."
 msgstr ""
 
-#: templates/projects/project_translations.html:36
+#: templates/projects/project_translations.html:43
 msgid "Existing Translations"
 msgstr ""
 
-#: templates/projects/project_translations.html:58
+#: templates/projects/project_translations.html:65
 msgid "No translations are currently configured"
 msgstr ""
 
-#: templates/projects/project_translations.html:67
+#: templates/projects/project_translations.html:74
 msgid "Choose which project you would like to add as a translation."
 msgstr ""
 

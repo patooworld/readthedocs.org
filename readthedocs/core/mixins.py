@@ -2,6 +2,8 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from vanilla import ListView
 
+from readthedocs.proxito.cache import cache_response, private_response
+
 
 class ListViewWithForm(ListView):
 
@@ -9,17 +11,15 @@ class ListViewWithForm(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = self.get_form(data=None, files=None)
+        context["form"] = self.get_form(data=None, files=None)
         return context
 
 
 class PrivateViewMixin(LoginRequiredMixin):
-
     pass
 
 
 class ProxiedAPIMixin:
-
     # DRF has BasicAuthentication and SessionAuthentication as default classes.
     # We don't support neither in the community site.
     authentication_classes = []
@@ -53,11 +53,12 @@ class CDNCacheControlMixin:
 
     def dispatch(self, request, *args, **kwargs):
         response = super().dispatch(request, *args, **kwargs)
-        cache_response = self.can_be_cached(request)
-        if cache_response is not None:
-            response.headers["CDN-Cache-Control"] = (
-                "public" if cache_response else "private"
-            )
+        can_be_cached = self.can_be_cached(request)
+        if can_be_cached is not None:
+            if can_be_cached:
+                cache_response(response)
+            else:
+                private_response(response)
         return response
 
     def can_be_cached(self, request):

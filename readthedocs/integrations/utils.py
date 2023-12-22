@@ -1,8 +1,5 @@
 """Integration utility functions."""
 
-import os
-
-
 def normalize_request_payload(request):
     """
     Normalize the request body, hopefully to JSON.
@@ -14,8 +11,8 @@ def normalize_request_payload(request):
     :returns: The request body as a string
     :rtype: str
     """
-    request_payload = getattr(request, 'data', {})
-    if request.content_type != 'application/json':
+    request_payload = getattr(request, "data", {})
+    if request.content_type != "application/json":
         # Here, request_body can be a dict or a MergeDict. Probably best to
         # normalize everything first
         try:
@@ -23,13 +20,3 @@ def normalize_request_payload(request):
         except AttributeError:
             pass
     return request_payload
-
-
-def get_secret(size=64):
-    """
-    Get a random string of `size` bytes.
-
-    :param size: Number of bytes
-    """
-    secret = os.urandom(size)
-    return secret.hex()

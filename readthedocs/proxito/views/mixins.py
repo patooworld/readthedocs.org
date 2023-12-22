@@ -18,13 +18,14 @@ from slugify import slugify as unicode_slugify
 from readthedocs.analytics.tasks import analytics_event
 from readthedocs.analytics.utils import get_client_ip
 from readthedocs.audit.models import AuditLog
-from readthedocs.builds.constants import EXTERNAL, INTERNAL
-from readthedocs.core.resolver import resolve, resolver
-from readthedocs.core.utils.url import unsafe_join_url_path
+from readthedocs.builds.constants import INTERNAL
+from readthedocs.core.resolver import Resolver
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.proxito.constants import RedirectType
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage, staticfiles_storage
+from readthedocs.subscriptions.constants import TYPE_AUDIT_PAGEVIEWS
+from readthedocs.subscriptions.products import get_feature
 
 log = structlog.get_logger(__name__)
 
@@ -196,7 +197,7 @@ class ServeDocsMixin:
         """Create an audit log of the page view if audit is enabled."""
         # Remove any query args (like the token access from AWS).
         path_only = urlparse(path).path
-        track_file = path_only.endswith(('.html', '.pdf', '.epub', '.zip'))
+        track_file = path_only.endswith((".html", ".pdf", ".epub", ".zip"))
         if track_file and self._is_audit_enabled(project):
             action = AuditLog.DOWNLOAD if download else AuditLog.PAGEVIEW
             AuditLog.objects.new(
@@ -213,7 +214,7 @@ class ServeDocsMixin:
         This feature is different from page views analytics,
         as it records every page view individually with more metadata like the user, IP, etc.
         """
-        return False
+        return bool(get_feature(project, feature_type=TYPE_AUDIT_PAGEVIEWS))
 
     def _serve_static_file(self, request, filename):
         return self._serve_file(
@@ -234,23 +235,23 @@ class ServeDocsMixin:
         """
         original_path = copy.copy(path)
         if not path.startswith(f"/{root_path}/"):
-            if path[0] == '/':
+            if path[0] == "/":
                 path = path[1:]
             path = f"/{root_path}/{path}"
 
         log.debug(
-            'Nginx serve.',
+            "Nginx serve.",
             original_path=original_path,
             path=path,
         )
 
         content_type, encoding = mimetypes.guess_type(path)
-        content_type = content_type or 'application/octet-stream'
+        content_type = content_type or "application/octet-stream"
         response = HttpResponse(
-            f'Serving internal path: {path}', content_type=content_type
+            f"Serving internal path: {path}", content_type=content_type
         )
         if encoding:
-            response['Content-Encoding'] = encoding
+            response["Content-Encoding"] = encoding
 
         # NGINX does not support non-ASCII characters in the header, so we
         # convert the IRI path to URI so it's compatible with what NGINX expects
@@ -258,7 +259,7 @@ class ServeDocsMixin:
         # https://github.com/benoitc/gunicorn/issues/1448
         # https://docs.djangoproject.com/en/1.11/ref/unicode/#uri-and-iri-handling
         x_accel_redirect = iri_to_uri(path)
-        response['X-Accel-Redirect'] = x_accel_redirect
+        response["X-Accel-Redirect"] = x_accel_redirect
 
         # Needed to strip any GET args, etc.
         response.proxito_path = urlparse(path).path
@@ -275,33 +276,20 @@ class ServeDocsMixin:
         return serve(request, path, root_path)
 
     def _serve_401(self, request, project):
-        res = render(request, '401.html')
+        res = render(request, "401.html")
         res.status_code = 401
-        log.debug('Unauthorized access to documentation.', project_slug=project.slug)
+        log.debug("Unauthorized access to documentation.", project_slug=project.slug)
         return res
 
-    def allowed_user(self, *args, **kwargs):
+    def allowed_user(self, request, version):
         return True
 
-    def get_version_from_host(self, request, version_slug):
-        # Handle external domain
-        unresolved_domain = request.unresolved_domain
-        if unresolved_domain and unresolved_domain.is_from_external_domain:
-            external_version_slug = unresolved_domain.external_version_slug
-            self.version_type = EXTERNAL
-            log.warning(
-                'Using version slug from host.',
-                version_slug=version_slug,
-                host_version=external_version_slug,
-            )
-            return external_version_slug
-        return version_slug
-
     def _spam_response(self, request, project):
-        if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
+        if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
             from readthedocsext.spamfighting.utils import is_serve_docs_denied  # noqa
+
             if is_serve_docs_denied(project):
-                return render(request, template_name='spam.html', status=410)
+                return render(request, template_name="spam.html", status=410)
 
 
 class ServeRedirectMixin:
@@ -320,7 +308,7 @@ class ServeRedirectMixin:
         :param external: If the version is from a pull request preview.
         """
         urlparse_result = urlparse(request.get_full_path())
-        to = resolve(
+        to = Resolver().resolve(
             project=final_project,
             version_slug=version_slug,
             filename=filename,
@@ -330,81 +318,25 @@ class ServeRedirectMixin:
         log.debug(
             "System Redirect.", host=request.get_host(), from_url=filename, to_url=to
         )
-        # All system redirects can be cached, since the final URL will check for authz.
-        self.cache_response = True
-        resp = HttpResponseRedirect(to)
-        resp["X-RTD-Redirect"] = RedirectType.system.name
-        return resp
 
-    def canonical_redirect(
-        self,
-        request,
-        final_project,
-        redirect_type,
-        external_version_slug=None,
-    ):
-        """
-        Return a redirect to the canonical domain including scheme.
-
-        The following cases are covered:
-
-        - Redirect a custom domain from http to https (if supported)
-          http://project.rtd.io/ -> https://project.rtd.io/
-        - Redirect a domain to a canonical domain (http or https).
-          http://project.rtd.io/ -> https://docs.test.com/
-          http://project.rtd.io/foo/bar/ -> https://docs.test.com/foo/bar/
-        - Redirect from a subproject domain to the main domain
-          https://subproject.rtd.io/en/latest/foo -> https://main.rtd.io/projects/subproject/en/latest/foo  # noqa
-          https://subproject.rtd.io/en/latest/foo -> https://docs.test.com/projects/subproject/en/latest/foo  # noqa
-
-        :param request: Request object.
-        :param final_project: The current project being served.
-        :param redirect_type: The type of canonical redirect (https, canonical-cname, subproject-main-domain)
-        :param external_version_slug: The version slug if the request is from a pull request preview.
-        """
-        from_url = request.build_absolute_uri()
-        parsed_from = urlparse(from_url)
-
-        if redirect_type == RedirectType.http_to_https:
-            # We only need to change the protocol.
-            to = parsed_from._replace(scheme="https").geturl()
-        elif redirect_type == RedirectType.to_canonical_domain:
-            # We need to change the domain and protocol.
-            canonical_domain = final_project.get_canonical_custom_domain()
-            protocol = "https" if canonical_domain.https else "http"
-            to = parsed_from._replace(
-                scheme=protocol, netloc=canonical_domain.domain
-            ).geturl()
-        elif redirect_type == RedirectType.subproject_to_main_domain:
-            # We need to get the subproject root in the domain of the main
-            # project, and append the current path.
-            project_doc_prefix = resolver.get_url_prefix(
-                project=final_project,
-                external_version_slug=external_version_slug,
-            )
-            parsed_doc_prefix = urlparse(project_doc_prefix)
-            to = parsed_doc_prefix._replace(
-                path=unsafe_join_url_path(parsed_doc_prefix.path, parsed_from.path),
-                query=parsed_from.query,
-            ).geturl()
-        else:
-            raise NotImplementedError
-
-        if from_url == to:
-            # check that we do have a response and avoid infinite redirect
-            log.warning(
-                'Infinite Redirect: FROM URL is the same than TO URL.',
+        new_path_parsed = urlparse(to)
+        old_path_parsed = urlparse(request.build_absolute_uri())
+        # Check explicitly only the path and hostname, since a different
+        # protocol or query parameters could lead to a infinite redirect.
+        if (
+            new_path_parsed.hostname == old_path_parsed.hostname
+            and new_path_parsed.path == old_path_parsed.path
+        ):
+            log.debug(
+                "Infinite Redirect: FROM URL is the same than TO URL.",
                 url=to,
             )
             raise InfiniteRedirectException()
 
-        log.info(
-            "Canonical Redirect.", host=request.get_host(), from_url=from_url, to_url=to
-        )
-        # All canonical redirects can be cached, since the final URL will check for authz.
+        # All system redirects can be cached, since the final URL will check for authz.
         self.cache_response = True
         resp = HttpResponseRedirect(to)
-        resp["X-RTD-Redirect"] = redirect_type.name
+        resp["X-RTD-Redirect"] = RedirectType.system.name
         return resp
 
     def get_redirect(
@@ -448,8 +380,8 @@ class ServeRedirectMixin:
         # Redirects shouldn't change the domain, version or language.
         # However, if the new_path is already an absolute URI, just use it
         new_path = request.build_absolute_uri(new_path)
-        log.info(
-            'Redirecting...',
+        log.debug(
+            "Redirecting...",
             from_url=request.build_absolute_uri(proxito_path),
             to_url=new_path,
             http_status_code=http_status,
@@ -464,8 +396,8 @@ class ServeRedirectMixin:
             and new_path_parsed.path == old_path_parsed.path
         ):
             # check that we do have a response and avoid infinite redirect
-            log.warning(
-                'Infinite Redirect: FROM URL is the same than TO URL.',
+            log.debug(
+                "Infinite Redirect: FROM URL is the same than TO URL.",
                 url=new_path,
             )
             raise InfiniteRedirectException()

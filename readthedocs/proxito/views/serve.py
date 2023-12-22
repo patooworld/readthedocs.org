@@ -6,43 +6,60 @@ import structlog
 from django.conf import settings
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
-from django.urls import resolve as url_resolve
 from django.views import View
 
 from readthedocs.analytics.models import PageView
 from readthedocs.api.mixins import CDNCacheTagsMixin
-from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
+from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.core.mixins import CDNCacheControlMixin
-from readthedocs.core.resolver import resolve_path, resolver
+from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import (
     InvalidExternalVersionError,
     InvalidPathForVersionedProjectError,
     TranslationNotFoundError,
+    TranslationWithoutVersionError,
     VersionNotFoundError,
     unresolver,
 )
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.projects import constants
-from readthedocs.projects.models import Domain, Feature
+from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING, PRIVATE
+from readthedocs.projects.models import Domain, Feature, HTMLFile
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.proxito.constants import RedirectType
-from readthedocs.redirects.exceptions import InfiniteRedirectException
-from readthedocs.storage import build_media_storage
-
-from .mixins import (
+from readthedocs.proxito.exceptions import (
+    ContextualizedHttp404,
+    ProjectFilenameHttp404,
+    ProjectTranslationHttp404,
+    ProjectVersionHttp404,
+)
+from readthedocs.proxito.redirects import canonical_redirect
+from readthedocs.proxito.views.mixins import (
     InvalidPathError,
     ServeDocsMixin,
     ServeRedirectMixin,
     StorageFileNotFound,
 )
-from .utils import _get_project_data_from_request
+from readthedocs.redirects.exceptions import InfiniteRedirectException
+from readthedocs.storage import build_media_storage
 
 log = structlog.get_logger(__name__)  # noqa
 
 
 class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, View):
+
+    """
+    Page redirect view.
+
+    This allows users to redirec to the default version of a project.
+    For example:
+
+    - /page/api/index.html -> /en/latest/api/index.html
+    - /projects/subproject/page/index.html -> /projects/subproject/en/latest/api/index.html
+    """
+
     def get(self, request, subproject_slug=None, filename=""):
+        """Handle all page redirects."""
 
         unresolved_domain = request.unresolved_domain
         project = unresolved_domain.project
@@ -73,21 +90,34 @@ class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
 
 class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, View):
-    def get(
-        self,
-        request,
-        project_slug=None,
-        subproject_slug=None,
-        subproject_slash=None,
-        lang_slug=None,
-        version_slug=None,
-        filename="",
-    ):
-        """
-        Take the incoming parsed URL's and figure out what file to serve.
 
-        ``subproject_slash`` is used to determine if the subproject URL has a slash,
-        so that we can decide if we need to serve docs or add a /.
+    """
+    Serve docs view.
+
+    This view serves all the documentation pages,
+    and handles canonical redirects.
+    """
+
+    def get(self, request, path):
+        """
+        Serve a file from the resolved project and version from the path.
+
+        Before trying to serve the file, we check for canonical redirects.
+
+        If the path isn't valid for the current project, or if the version/translation
+        doesn't exist, we raise a 404. This will be handled by the ``ServeError404``
+        view.
+
+        This view handles the following redirects:
+
+        - Redirect to the default version of the project
+          from the root path or translation
+          (/ -> /en/latest/, /en/ -> /en/latest/).
+        - Trailing slash redirect (/en/latest -> /en/latest/).
+        - Forced redirects (apply a user defined redirect even if the path exists).
+
+        This view checks if the user is allowed to access the current version,
+        and if the project is marked as spam.
         """
         unresolved_domain = request.unresolved_domain
         # Handle requests that need canonicalizing first,
@@ -98,14 +128,12 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         # and makes caching more effective because we don't care about authz.
         redirect_type = self._get_canonical_redirect_type(request)
         if redirect_type:
-            # TODO: find a better way to pass this to the middleware.
-            request.path_project_slug = unresolved_domain.project.slug
             try:
-                return self.canonical_redirect(
-                    request=request,
-                    final_project=unresolved_domain.project,
-                    external_version_slug=unresolved_domain.external_version_slug,
+                return canonical_redirect(
+                    request,
+                    project=unresolved_domain.project,
                     redirect_type=redirect_type,
+                    external_version_slug=unresolved_domain.external_version_slug,
                 )
             except InfiniteRedirectException:
                 # ``canonical_redirect`` raises this when it's redirecting back to itself.
@@ -113,158 +141,14 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 # and we don't want to issue infinite redirects.
                 pass
 
-        if unresolved_domain.project.has_feature(Feature.USE_UNRESOLVER_WITH_PROXITO):
-            return self.get_using_unresolver(request)
-
-        original_version_slug = version_slug
-        version_slug = self.get_version_from_host(request, version_slug)
-        final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
-            request,
-            project_slug=project_slug,
-            subproject_slug=subproject_slug,
-            lang_slug=lang_slug,
-            version_slug=version_slug,
-            filename=filename,
-        )
-
-        is_external = unresolved_domain.is_from_external_domain
-        if (
-            is_external
-            and original_version_slug
-            and original_version_slug != version_slug
-        ):
-            raise Http404("Version doesn't match the version from the domain.")
-
-        manager = EXTERNAL if is_external else INTERNAL
-        version = (
-            final_project.versions(manager=manager).filter(slug=version_slug).first()
-        )
-
-        log.bind(
-            project_slug=final_project.slug,
-            subproject_slug=subproject_slug,
-            lang_slug=lang_slug,
-            version_slug=version_slug,
-            filename=filename,
-            external=is_external,
-        )
-
-        # Skip serving versions that are not active (return 404). This is to
-        # avoid serving files that we have in the storage, but its associated
-        # version does not exist anymore or it was de-activated.
-        #
-        # Note that we want to serve the page when `version is None` because it
-        # could be a valid URL, like `/` or `` (empty) that does not have a
-        # version associated to it.
-        #
-        # However, if there is a `version_slug` in the URL but there is no
-        # version on the database we want to return 404.
-        if (version and not version.active) or (version_slug and not version):
-            log.warning("Version does not exist or is not active.")
-            raise Http404("Version does not exist or is not active.")
-
-        if version:
-            # All public versions can be cached.
-            self.cache_response = version.is_public
-
-        log.bind(cache_response=self.cache_response)
-        log.debug('Serving docs.')
-
-        # Verify if the project is marked as spam and return a 401 in that case
-        spam_response = self._spam_response(request, final_project)
-        if spam_response:
-            # If a project was marked as spam,
-            # all of their responses can be cached.
-            self.cache_response = True
-            return spam_response
-
-        # Handle a / redirect when we aren't a single version
-        if all([
-                lang_slug is None,
-                # External versions/builds will always have a version,
-                # because it is taken from the host name
-                version_slug is None or is_external,
-                filename == '',
-                not final_project.single_version,
-        ]):
-            return self.system_redirect(
-                request=request,
-                final_project=final_project,
-                version_slug=version_slug,
-                filename=filename,
-                is_external_version=is_external,
-            )
-
-        # Handle `/projects/subproject` URL redirection:
-        # when there _is_ a subproject_slug but not a subproject_slash
-        if all([
-                final_project.single_version,
-                filename == '',
-                subproject_slug,
-                not subproject_slash,
-        ]):
-            return self.system_redirect(
-                request=request,
-                final_project=final_project,
-                version_slug=version_slug,
-                filename=filename,
-                is_external_version=is_external,
-            )
-
-        if all([
-                (lang_slug is None or version_slug is None),
-                not final_project.single_version,
-                self.version_type != EXTERNAL,
-        ]):
-            log.debug(
-                'Invalid URL for project with versions.',
-                filename=filename,
-            )
-            raise Http404('Invalid URL for project with versions')
-
-        redirect_path, http_status = self.get_redirect(
-            project=final_project,
-            lang_slug=lang_slug,
-            version_slug=version_slug,
-            filename=filename,
-            full_path=request.path,
-            forced_only=True,
-        )
-        if redirect_path and http_status:
-            log.bind(forced_redirect=True)
-            try:
-                return self.get_redirect_response(
-                    request=request,
-                    redirect_path=redirect_path,
-                    proxito_path=request.path,
-                    http_status=http_status,
-                )
-            except InfiniteRedirectException:
-                # Continue with our normal serve.
-                pass
-
-        # Check user permissions and return an unauthed response if needed
-        if not self.allowed_user(request, final_project, version_slug):
-            return self.get_unauthed_response(request, final_project)
-
-        return self._serve_docs(
-            request=request,
-            project=final_project,
-            version=version,
-            filename=filename,
-        )
+        # Django doesn't include the leading slash in the path, so we normalize it here.
+        path = "/" + path
+        return self.serve_path(request, path)
 
     def _get_canonical_redirect_type(self, request):
         """If the current request needs a redirect, return the type of redirect to perform."""
         unresolved_domain = request.unresolved_domain
         project = unresolved_domain.project
-        if unresolved_domain.is_from_custom_domain:
-            domain = unresolved_domain.domain
-            if domain.https and not request.is_secure():
-                # Redirect HTTP -> HTTPS (302) for this custom domain.
-                log.debug("Proxito CNAME HTTPS Redirect.", domain=domain.domain)
-                return RedirectType.http_to_https
-
         # Check for subprojects before checking for canonical domains,
         # so we can redirect to the main domain first.
         # Custom domains on subprojects are not supported.
@@ -282,7 +166,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 .exists()
             )
             # For .com we need to check if the project supports custom domains.
-            if canonical_domain and resolver._use_cname(project):
+            if canonical_domain and Resolver()._use_cname(project):
                 log.debug(
                     "Proxito Public Domain -> Canonical Domain Redirect.",
                     project_slug=project.slug,
@@ -291,23 +175,17 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
 
         return None
 
-    def get_using_unresolver(self, request):
-        """
-        Resolve the current request using the new proxito implementation.
-
-        This is basically a copy of the get() method,
-        but adapted to make use of the unresolved to extract the current project, version, and file.
-        """
+    def serve_path(self, request, path):
         unresolved_domain = request.unresolved_domain
-        # TODO: We shouldn't use path_info to the get the proxito path,
-        # it should be captured in proxito/urls.py.
-        path = request.path_info
 
         # We force all storage calls to use the external versions storage,
         # since we are serving an external version.
         if unresolved_domain.is_from_external_domain:
             self.version_type = EXTERNAL
 
+        # 404 errors aren't contextualized here because all 404s use the internal nginx redirect,
+        # where the path will be 'unresolved' again when handling the 404 error
+        # See: ServeError404Base
         try:
             unresolved = unresolver.unresolve_path(
                 unresolved_domain=unresolved_domain,
@@ -328,6 +206,25 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             # TODO: find a better way to pass this to the middleware.
             request.path_project_slug = exc.project.slug
             raise Http404
+        except TranslationWithoutVersionError as exc:
+            project = exc.project
+            # TODO: find a better way to pass this to the middleware.
+            request.path_project_slug = project.slug
+
+            if unresolved_domain.is_from_external_domain:
+                version_slug = unresolved_domain.external_version_slug
+            else:
+                version_slug = None
+            # Redirect to the default version of the current translation.
+            # This is `/en -> /en/latest/` or
+            # `/projects/subproject/en/ -> /projects/subproject/en/latest/`.
+            return self.system_redirect(
+                request=request,
+                final_project=project,
+                version_slug=version_slug,
+                filename="",
+                is_external_version=unresolved_domain.is_from_external_domain,
+            )
         except InvalidPathForVersionedProjectError as exc:
             project = exc.project
             if unresolved_domain.is_from_external_domain:
@@ -339,7 +236,16 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             request.path_project_slug = project.slug
             request.path_version_slug = version_slug
 
-            if exc.path == "/":
+            # Support redirecting to the default version from
+            # the root path and the custom path prefix.
+            root_paths = ["/"]
+            if project.custom_prefix:
+                # We need to check custom path prefixes with and without the trailing slash,
+                # e.g: /foo and /foo/.
+                root_paths.append(project.custom_prefix)
+                root_paths.append(project.custom_prefix.rstrip("/"))
+
+            if exc.path in root_paths:
                 # When the path is empty, the project didn't have an explicit version,
                 # so we need to redirect to the default version.
                 # This is `/ -> /en/latest/` or
@@ -348,7 +254,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                     request=request,
                     final_project=project,
                     version_slug=version_slug,
-                    filename=exc.path,
+                    filename="",
                     is_external_version=unresolved_domain.is_from_external_domain,
                 )
 
@@ -357,6 +263,27 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         project = unresolved.project
         version = unresolved.version
         filename = unresolved.filename
+
+        # Check if the old language code format was used, and redirect to the new one.
+        # NOTE: we may have some false positives here, for example for an URL like:
+        # /pt-br/latest/pt_BR/index.html, but our protection for infinite redirects
+        # will prevent a redirect loop.
+        if (
+            project.supports_translations
+            and project.language in OLD_LANGUAGES_CODE_MAPPING
+            and OLD_LANGUAGES_CODE_MAPPING[project.language] in path
+        ):
+            try:
+                return self.system_redirect(
+                    request=request,
+                    final_project=project,
+                    version_slug=version.slug,
+                    filename=filename,
+                    is_external_version=unresolved_domain.is_from_external_domain,
+                )
+            except InfiniteRedirectException:
+                # A false positive was detected, continue with our normal serve.
+                pass
 
         log.bind(
             project_slug=project.slug,
@@ -427,7 +354,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 pass
 
         # Check user permissions and return an unauthed response if needed.
-        if not self.allowed_user(request, project, version.slug):
+        if not self.allowed_user(request, version):
             return self.get_unauthed_response(request, project)
 
         return self._serve_docs(
@@ -442,9 +369,15 @@ class ServeDocs(SettingsOverrideObject):
     _default_class = ServeDocsBase
 
 
-class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
+class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, View):
 
-    def get(self, request, proxito_path, template_name='404.html'):
+    """
+    Proxito handler for 404 pages.
+
+    This view is called by an internal nginx redirect when there is a 404.
+    """
+
+    def get(self, request, proxito_path):
         """
         Handler for 404 pages on subdomains.
 
@@ -462,45 +395,83 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         """
         log.bind(proxito_path=proxito_path)
         log.debug('Executing 404 handler.')
-
         unresolved_domain = request.unresolved_domain
-        if unresolved_domain.project.has_feature(Feature.USE_UNRESOLVER_WITH_PROXITO):
-            return self.get_using_unresolver(request, proxito_path)
+        # We force all storage calls to use the external versions storage,
+        # since we are serving an external version.
+        # The version that results from the unresolve_path() call already is
+        # validated to use the correct manager, this is here to add defense in
+        # depth against serving the wrong version.
+        if unresolved_domain.is_from_external_domain:
+            self.version_type = EXTERNAL
 
-        # Parse the URL using the normal urlconf, so we get proper subdomain/translation data
-        _, __, kwargs = url_resolve(
-            proxito_path,
-            urlconf='readthedocs.proxito.urls',
-        )
+        project = None
+        version = None
+        # If we weren't able to resolve a filename,
+        # then the path is the filename.
+        filename = proxito_path
+        lang_slug = None
+        version_slug = None
+        # Try to map the current path to a project/version/filename.
+        # If that fails, we fill the variables with the information we have
+        # available in the exceptions.
 
-        version_slug = kwargs.get('version_slug')
-        version_slug = self.get_version_from_host(request, version_slug)
-        final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
-            request,
-            project_slug=kwargs.get('project_slug'),
-            subproject_slug=kwargs.get('subproject_slug'),
-            lang_slug=kwargs.get('lang_slug'),
-            version_slug=version_slug,
-            filename=kwargs.get('filename', ''),
-        )
+        contextualized_404_class = ContextualizedHttp404
+
+        try:
+            unresolved = unresolver.unresolve_path(
+                unresolved_domain=unresolved_domain,
+                path=proxito_path,
+                append_indexhtml=False,
+            )
+            project = unresolved.project
+            version = unresolved.version
+            filename = unresolved.filename
+            lang_slug = project.language
+            version_slug = version.slug
+            contextualized_404_class = ProjectFilenameHttp404
+        except VersionNotFoundError as exc:
+            project = exc.project
+            lang_slug = project.language
+            version_slug = exc.version_slug
+            filename = exc.filename
+            contextualized_404_class = ProjectVersionHttp404
+        except TranslationNotFoundError as exc:
+            project = exc.project
+            lang_slug = exc.language
+            version_slug = exc.version_slug
+            filename = exc.filename
+            contextualized_404_class = ProjectTranslationHttp404
+        except TranslationWithoutVersionError as exc:
+            project = exc.project
+            lang_slug = exc.language
+            # TODO: Use a contextualized 404
+        except InvalidExternalVersionError as exc:
+            project = exc.project
+            # TODO: Use a contextualized 404
+        except InvalidPathForVersionedProjectError as exc:
+            project = exc.project
+            filename = exc.path
+            # TODO: Use a contextualized 404
 
         log.bind(
-            project_slug=final_project.slug,
+            project_slug=project.slug,
             version_slug=version_slug,
         )
 
-        version = Version.objects.filter(
-            project=final_project, slug=version_slug
-        ).first()
+        # TODO: find a better way to pass this to the middleware.
+        request.path_project_slug = project.slug
+        request.path_version_slug = version_slug
 
         # If we were able to resolve to a valid version, it means that the
         # current file doesn't exist. So we check if we can redirect to its
         # index file if it exists before doing anything else.
+        # If the version isn't marked as built, we don't check for index files,
+        # since the version doesn't have any files.
         # This is /en/latest/foo -> /en/latest/foo/index.html.
-        if version:
+        if version and version.built:
             response = self._get_index_file_redirect(
                 request=request,
-                project=final_project,
+                project=project,
                 version=version,
                 filename=filename,
                 full_path=proxito_path,
@@ -513,7 +484,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         # ``index.html`` and ``README.html`` to emulate the behavior we had when
         # serving directly from NGINX without passing through Python.
         redirect_path, http_status = self.get_redirect(
-            project=final_project,
+            project=project,
             lang_slug=lang_slug,
             version_slug=version_slug,
             filename=filename,
@@ -521,7 +492,9 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         )
         if redirect_path and http_status:
             try:
-                return self.get_redirect_response(request, redirect_path, proxito_path, http_status)
+                return self.get_redirect_response(
+                    request, redirect_path, proxito_path, http_status
+                )
             except InfiniteRedirectException:
                 # ``get_redirect_response`` raises this when it's redirecting back to itself.
                 # We can safely ignore it here because it's logged in ``canonical_redirect``,
@@ -530,7 +503,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
 
         # Register 404 pages into our database for user's analytics
         self._register_broken_link(
-            project=final_project,
+            project=project,
             version=version,
             path=filename,
             full_path=proxito_path,
@@ -538,13 +511,19 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
 
         response = self._get_custom_404_page(
             request=request,
-            project=final_project,
+            project=project,
             version=version,
         )
         if response:
             return response
 
-        raise Http404('No custom 404 page found.')
+        # Don't use the custom 404 page, use our general contextualized 404 response
+        # Several additional context variables can be added if the templates
+        # or other error handling is developed (version, language, filename).
+        raise contextualized_404_class(
+            project=project,
+            path_not_found=proxito_path,
+        )
 
     def _register_broken_link(self, project, version, path, full_path):
         try:
@@ -593,44 +572,63 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
 
         We check for a 404.html or 404/index.html file.
 
+        We don't check for a custom 404 page in versions that aren't marked as built,
+        since they don't have any files.
+
         If a 404 page is found, we return a response with the content of that file,
         `None` otherwise.
         """
-        current_version_slug = version.slug if version else None
-        versions_slug = []
-        if current_version_slug:
-            versions_slug.append(current_version_slug)
+        versions_404 = [version] if version and version.built else []
+        if not version or version.slug != project.default_version:
+            default_version = project.versions.filter(
+                slug=project.default_version
+            ).first()
+            if default_version and default_version.built:
+                versions_404.append(default_version)
 
-        default_version_slug = project.get_default_version()
-        if default_version_slug != current_version_slug:
-            versions_slug.append(default_version_slug)
+        if not versions_404:
+            return None
 
-        for version_slug_404 in versions_slug:
-            if not self.allowed_user(request, project, version_slug_404):
+        tryfiles = ["404.html", "404/index.html"]
+        available_404_files = list(
+            HTMLFile.objects.filter(
+                version__in=versions_404, path__in=tryfiles
+            ).values_list("version__slug", "path")
+        )
+        if not available_404_files:
+            return None
+
+        for version_404 in versions_404:
+            if not self.allowed_user(request, version_404):
                 continue
 
-            storage_root_path = project.get_storage_path(
-                type_="html",
-                version_slug=version_slug_404,
-                include_file=False,
-                version_type=self.version_type,
-            )
-            tryfiles = ["404.html", "404/index.html"]
             for tryfile in tryfiles:
+                if (version_404.slug, tryfile) not in available_404_files:
+                    continue
+
+                storage_root_path = project.get_storage_path(
+                    type_="html",
+                    version_slug=version_404.slug,
+                    include_file=False,
+                    version_type=self.version_type,
+                )
                 storage_filename_path = build_media_storage.join(
                     storage_root_path, tryfile
                 )
-                if build_media_storage.exists(storage_filename_path):
-                    log.info(
-                        "Serving custom 404.html page.",
-                        version_slug_404=version_slug_404,
-                        storage_filename_path=storage_filename_path,
+                log.debug(
+                    "Serving custom 404.html page.",
+                    version_slug_404=version_404.slug,
+                    storage_filename_path=storage_filename_path,
+                )
+                try:
+                    content = build_media_storage.open(storage_filename_path).read()
+                    return HttpResponse(content, status=404)
+                except FileNotFoundError:
+                    log.warning(
+                        "File not found in storage. File out of sync with DB.",
+                        file=storage_filename_path,
                     )
-                    resp = HttpResponse(
-                        build_media_storage.open(storage_filename_path).read()
-                    )
-                    resp.status_code = 404
-                    return resp
+                    return None
         return None
 
     def _get_index_file_redirect(self, request, project, version, filename, full_path):
@@ -643,165 +641,60 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         - /en/latest/foo -> /en/latest/foo/README.html
         - /en/latest/foo/ -> /en/latest/foo/README.html
         """
-        storage_root_path = project.get_storage_path(
-            type_="html",
-            version_slug=version.slug,
-            include_file=False,
-            version_type=self.version_type,
+        tryfiles = ["index.html", "README.html"]
+        # If the path ends with `/`, we already tried to serve
+        # the `/index.html` file, so we only need to test for
+        # the `/README.html` file.
+        if full_path.endswith("/"):
+            tryfiles = ["README.html"]
+
+        tryfiles = [
+            (filename.rstrip("/") + f"/{tryfile}").lstrip("/") for tryfile in tryfiles
+        ]
+        available_index_files = list(
+            HTMLFile.objects.filter(version=version, path__in=tryfiles).values_list(
+                "path", flat=True
+            )
         )
 
-        # First, check for dirhtml with slash
-        for tryfile in ("index.html", "README.html"):
-            storage_filename_path = build_media_storage.join(
-                storage_root_path,
-                f"{filename}/{tryfile}".lstrip("/"),
-            )
-            log.debug("Trying index filename.")
-            if build_media_storage.exists(storage_filename_path):
-                log.info("Redirecting to index file.", tryfile=tryfile)
-                # Use urlparse so that we maintain GET args in our redirect
-                parts = urlparse(full_path)
-                if tryfile == "README.html":
-                    new_path = parts.path.rstrip("/") + f"/{tryfile}"
-                else:
-                    new_path = parts.path.rstrip("/") + "/"
+        for tryfile in tryfiles:
+            if tryfile not in available_index_files:
+                continue
 
-                # `full_path` doesn't include query params.`
-                query = urlparse(request.get_full_path()).query
-                redirect_url = parts._replace(
-                    path=new_path,
-                    query=query,
-                ).geturl()
+            log.info("Redirecting to index file.", tryfile=tryfile)
+            # Use urlparse so that we maintain GET args in our redirect
+            parts = urlparse(full_path)
+            if tryfile.endswith("README.html"):
+                new_path = parts.path.rstrip("/") + "/README.html"
+            else:
+                new_path = parts.path.rstrip("/") + "/"
 
-                # TODO: decide if we need to check for infinite redirect here
-                # (from URL == to URL)
-                return HttpResponseRedirect(redirect_url)
+            # `full_path` doesn't include query params.`
+            query = urlparse(request.get_full_path()).query
+            redirect_url = parts._replace(
+                path=new_path,
+                query=query,
+            ).geturl()
+
+            # TODO: decide if we need to check for infinite redirect here
+            # (from URL == to URL)
+            return HttpResponseRedirect(redirect_url)
 
         return None
-
-    def get_using_unresolver(self, request, path):
-        """
-        404 handler using the new proxito implementation.
-
-        This is basically a copy of the get() method, but adapted to make use
-        of the unresolver to extract the current project, version, and file.
-        """
-        unresolved_domain = request.unresolved_domain
-        # We force all storage calls to use the external versions storage,
-        # since we are serving an external version.
-        # The version that results from the unresolve_path() call already is
-        # validated to use the correct manager, this is here to add defense in
-        # depth against serving the wrong version.
-        if unresolved_domain.is_from_external_domain:
-            self.version_type = EXTERNAL
-
-        project = None
-        version = None
-        filename = None
-        lang_slug = None
-        version_slug = None
-        # Try to map the current path to a project/version/filename.
-        # If that fails, we fill the variables with the information we have
-        # available in the exceptions.
-        try:
-            unresolved = unresolver.unresolve_path(
-                unresolved_domain=unresolved_domain,
-                path=path,
-                append_indexhtml=False,
-            )
-            project = unresolved.project
-            version = unresolved.version
-            filename = unresolved.filename
-            lang_slug = project.language
-            version_slug = version.slug
-        except VersionNotFoundError as exc:
-            project = exc.project
-            lang_slug = project.language
-            version_slug = exc.version_slug
-            filename = exc.filename
-        except TranslationNotFoundError as exc:
-            project = exc.project
-            lang_slug = exc.language
-            version_slug = exc.version_slug
-            filename = exc.filename
-        except InvalidExternalVersionError as exc:
-            project = exc.project
-        except InvalidPathForVersionedProjectError as exc:
-            project = exc.project
-            filename = exc.path
-
-        log.bind(
-            project_slug=project.slug,
-            version_slug=version_slug,
-        )
-
-        # TODO: find a better way to pass this to the middleware.
-        request.path_project_slug = project.slug
-        request.path_version_slug = version_slug
-
-        # If we were able to resolve to a valid version, it means that the
-        # current file doesn't exist. So we check if we can redirect to its
-        # index file if it exists before doing anything else.
-        # This is /en/latest/foo -> /en/latest/foo/index.html.
-        if version:
-            response = self._get_index_file_redirect(
-                request=request,
-                project=project,
-                version=version,
-                filename=filename,
-                full_path=path,
-            )
-            if response:
-                return response
-
-        # Check and perform redirects on 404 handler
-        # NOTE: this redirect check must be done after trying files like
-        # ``index.html`` and ``README.html`` to emulate the behavior we had when
-        # serving directly from NGINX without passing through Python.
-        redirect_path, http_status = self.get_redirect(
-            project=project,
-            lang_slug=lang_slug,
-            version_slug=version_slug,
-            filename=filename,
-            full_path=path,
-        )
-        if redirect_path and http_status:
-            try:
-                return self.get_redirect_response(
-                    request, redirect_path, path, http_status
-                )
-            except InfiniteRedirectException:
-                # ``get_redirect_response`` raises this when it's redirecting back to itself.
-                # We can safely ignore it here because it's logged in ``canonical_redirect``,
-                # and we don't want to issue infinite redirects.
-                pass
-
-        # Register 404 pages into our database for user's analytics
-        self._register_broken_link(
-            project=project,
-            version=version,
-            path=filename,
-            full_path=path,
-        )
-
-        response = self._get_custom_404_page(
-            request=request,
-            project=project,
-            version=version,
-        )
-        if response:
-            return response
-        raise Http404("No custom 404 page found.")
 
 
 class ServeError404(SettingsOverrideObject):
     _default_class = ServeError404Base
 
 
-class ServeRobotsTXTBase(ServeDocsMixin, View):
+class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
+
+    """Serve robots.txt from the domain's root."""
 
     # Always cache this view, since it's the same for all users.
     cache_response = True
+    # Extra cache tag to invalidate only this view if needed.
+    project_cache_tag = "robots.txt"
 
     def get(self, request):
         """
@@ -822,7 +715,7 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
             )
 
         # Verify if the project is marked as spam and return a custom robots.txt
-        elif "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
+        if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
             from readthedocsext.spamfighting.utils import is_robotstxt_denied  # noqa
             if is_robotstxt_denied(project):
                 return render(
@@ -835,14 +728,16 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
         version_slug = project.get_default_version()
         version = project.versions.get(slug=version_slug)
 
-        no_serve_robots_txt = any([
-            # If the default version is private or,
-            version.privacy_level == constants.PRIVATE,
-            # default version is not active or,
-            not version.active,
-            # default version is not built
-            not version.built,
-        ])
+        no_serve_robots_txt = any(
+            [
+                # If the default version is private or,
+                version.privacy_level == PRIVATE,
+                # default version is not active or,
+                not version.active,
+                # default version is not built
+                not version.built,
+            ]
+        )
 
         if no_serve_robots_txt:
             # ... we do return a 404
@@ -888,21 +783,37 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
             Version.internal.public(project=project)
             .filter(hidden=True)
         )
+        resolver = Resolver()
         hidden_paths = [
-            resolve_path(project, version_slug=version.slug)
+            resolver.resolve_path(project, version_slug=version.slug)
             for version in hidden_versions
         ]
         return hidden_paths
+
+    def _get_project(self):
+        # Method used by the CDNCacheTagsMixin class.
+        return self.request.unresolved_domain.project
+
+    def _get_version(self):
+        # Method used by the CDNCacheTagsMixin class.
+        # This view isn't explicitly mapped to a version,
+        # but it can be when we serve a custom robots.txt file.
+        # TODO: refactor how we set cache tags to avoid this.
+        return None
 
 
 class ServeRobotsTXT(SettingsOverrideObject):
     _default_class = ServeRobotsTXTBase
 
 
-class ServeSitemapXMLBase(View):
+class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
+
+    """Serve sitemap.xml from the domain's root."""
 
     # Always cache this view, since it's the same for all users.
     cache_response = True
+    # Extra cache tag to invalidate only this view if needed.
+    project_cache_tag = "sitemap.xml"
 
     def get(self, request):
         """
@@ -968,7 +879,7 @@ class ServeSitemapXMLBase(View):
             only_active=True,
         )
         if not public_versions.exists():
-            raise Http404
+            raise Http404()
 
         sorted_versions = sort_version_aware(public_versions)
 
@@ -1000,16 +911,18 @@ class ServeSitemapXMLBase(View):
             if last_build:
                 element['lastmod'] = last_build.date.isoformat()
 
+            resolver = Resolver()
             if project.translations.exists():
                 for translation in project.translations.all():
-                    translation_versions = (
-                        Version.internal.public(project=translation
-                                                ).values_list('slug', flat=True)
+                    translated_version = (
+                        Version.internal.public(project=translation)
+                        .filter(slug=version.slug)
+                        .first()
                     )
-                    if version.slug in translation_versions:
-                        href = project.get_docs_url(
-                            version_slug=version.slug,
-                            lang_slug=translation.language,
+                    if translated_version:
+                        href = resolver.resolve_version(
+                            project=translation,
+                            version=translated_version,
                         )
                         element['languages'].append({
                             'hreflang': hreflang_formatter(translation.language),
@@ -1033,6 +946,16 @@ class ServeSitemapXMLBase(View):
             context,
             content_type='application/xml',
         )
+
+    def _get_project(self):
+        # Method used by the CDNCacheTagsMixin class.
+        return self.request.unresolved_domain.project
+
+    def _get_version(self):
+        # Method used by the CDNCacheTagsMixin class.
+        # This view isn't explicitly mapped to a version,
+        # TODO: refactor how we set cache tags to avoid this.
+        return None
 
 
 class ServeSitemapXML(SettingsOverrideObject):

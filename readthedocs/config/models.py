@@ -26,16 +26,8 @@ class Base:
         }
 
 
-class Build(Base):
-
-    __slots__ = ('image', 'apt_packages')
-
-    def __init__(self, **kwargs):
-        kwargs.setdefault('apt_packages', [])
-        super().__init__(**kwargs)
-
-
-class BuildWithTools(Base):
+# TODO: rename this class to `Build`
+class BuildWithOs(Base):
 
     __slots__ = ("os", "tools", "jobs", "apt_packages", "commands")
 
@@ -80,8 +72,7 @@ class BuildJobs(Base):
 
 
 class Python(Base):
-
-    __slots__ = ('version', 'install', 'use_system_site_packages')
+    __slots__ = ("install",)
 
 
 class PythonInstallRequirements(Base):

@@ -9,13 +9,18 @@ Feature reference
   A project may define multiple domains,
   as well as define the *canonical domain* where all other domains will redirect.
 
+⏩️ :doc:`/reference/git-integration`
+  Read the Docs integrates with |git_providers_and|.
+  This makes your Git repositories easy to import and configure automatically.
+
+  Note that we also support other Git providers through :doc:`manual configuration </guides/setup/git-repo-manual>`.
 
 ⏩️ :doc:`/versions`
   We support multiple versions and translations,
   integrated nicely into the URL of your documentation.
   This is served at ``/en/latest/`` by default.
-  If you only have 1 version and translation,
-  we also support :doc:`single version projects </single-version>` served at ``/``.
+  If you have only one version, or don't need translations,
+  you can change the :doc:`versioning scheme </versioning-schemes>` of your project.
 
 ⏩️ :doc:`/pull-requests`
   Your project can be configured to build and host documentation for every new pull request.
@@ -67,6 +72,7 @@ Feature reference
    :caption: Hosting Features
 
    /custom-domains
+   /reference/git-integration
    /versions
    /pull-requests
    /build-notifications
@@ -95,9 +101,9 @@ Feature reference
    /automation-rules
    /badges
    /canonical-urls
-   /feature-flags
    /flyout-menu
    /reference/environment-variables
    /security-log
    /server-side-search/index
-   /single-version
+   /versioning-schemes
+   /science

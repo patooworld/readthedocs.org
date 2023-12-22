@@ -11,9 +11,7 @@ log = structlog.get_logger(__name__)
 
 
 class CommunityProxitoSettingsMixin:
-
-    ROOT_URLCONF = 'readthedocs.proxito.urls'
-    USE_SUBDOMAIN = True
+    ROOT_URLCONF = "readthedocs.proxito.urls"
     SECURE_REFERRER_POLICY = "no-referrer-when-downgrade"
 
     # Allow cookies from cross-site requests on subdomains for now.
@@ -24,9 +22,9 @@ class CommunityProxitoSettingsMixin:
     def DATABASES(self):
         # This keeps connections to the DB alive,
         # which reduces latency with connecting to postgres
-        dbs = getattr(super(), 'DATABASES', {})
+        dbs = getattr(super(), "DATABASES", {})
         for db in dbs:
-            dbs[db]['CONN_MAX_AGE'] = 86400
+            dbs[db]["CONN_MAX_AGE"] = 86400
         return dbs
 
     @property
@@ -34,18 +32,18 @@ class CommunityProxitoSettingsMixin:
         # Use our new middleware instead of the old one
         classes = super().MIDDLEWARE
         classes = list(classes)
-        classes.append('readthedocs.proxito.middleware.ProxitoMiddleware')
+        classes.append("readthedocs.proxito.middleware.ProxitoMiddleware")
 
         middleware_to_remove = (
             # We don't need or want to allow cross site requests in proxito.
-            'corsheaders.middleware.CorsMiddleware',
-            'csp.middleware.CSPMiddleware',
-            'django.middleware.clickjacking.XFrameOptionsMiddleware',
+            "corsheaders.middleware.CorsMiddleware",
+            "csp.middleware.CSPMiddleware",
+            "django.middleware.clickjacking.XFrameOptionsMiddleware",
         )
         for mw in middleware_to_remove:
             if mw in classes:
                 classes.remove(mw)
             else:
-                log.warning('Failed to remove middleware.', middleware=mw)
+                log.warning("Failed to remove middleware.", middleware=mw)
 
         return classes

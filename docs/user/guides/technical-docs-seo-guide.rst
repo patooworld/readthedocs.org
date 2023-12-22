@@ -1,4 +1,4 @@
-How to do Search Engine Optimization (SEO) for documentation projects
+How to do search engine optimization (SEO) for documentation projects
 =====================================================================
 
 .. meta::
@@ -200,7 +200,7 @@ or redirecting one version to another.
 
 .. seealso:
 
-   :doc:`/automatic-redirects`
+   :doc:`/guides/best-practice/links`
       Following best practices to avoid broken links is great for search engine ranking.
 
 Canonical URLs ✅️

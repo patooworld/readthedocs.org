@@ -1,19 +1,22 @@
 {
   "name": "readthedocs",
-  "version": "9.8.0",
+  "version": "10.12.2",
   "description": "Read the Docs build dependencies",
   "author": "Read the Docs, Inc <support@readthedocs.com>",
   "scripts": {
     "build": "gulp build",
     "dev": "gulp dev",
     "lint": "gulp lint",
-    "vendor": "gulp vendor"
+    "vendor": "gulp vendor",
+    "prepare": "npm run snyk-protect",
+    "snyk-protect": "snyk-protect"
   },
   "dependencies": {
     "bowser": "^1.9.3",
     "cssfilter": "0.0.8",
     "github-changelog": "git+https://github.com/agjohnson/github-changelog.git",
-    "npm": "^6.1.0"
+    "npm": "^7.0.0",
+    "@snyk/protect": "latest"
   },
   "devDependencies": {
     "bower": "^1.8.4",
@@ -23,7 +26,7 @@
     "eslint-config-airbnb-base": "^11.2.0",
     "eslint-plugin-import": "^2.2.0",
     "event-stream": "^3.3.1",
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.0",
     "gulp-eslint": "^3.0.1",
     "gulp-less": "^3.0.3",
     "gulp-rename": "^1.2.2",
@@ -45,5 +48,6 @@
   "keywords": [
     "docs",
     "documentation"
-  ]
+  ],
+  "snyk": true
 }

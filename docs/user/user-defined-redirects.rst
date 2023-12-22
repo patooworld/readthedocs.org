@@ -19,31 +19,29 @@ the bad user experience of a 404 page is usually best to avoid.
 
    :doc:`/guides/redirects`
      This guide shows you how to add redirects with practical examples.
-   :doc:`/automatic-redirects`
+   :doc:`/guides/best-practice/links`
      Information and tips about creating and handling external references.
    :doc:`/guides/deprecating-content`
      A guide to deprecating features and other topics in a documentation.
 
 
-Special features
-----------------
+Limitations
+-----------
 
-- By default, redirects are followed only if the requested page doesn't exist
-  (*404 File Not Found* error).
-  If you need to apply a redirect for files that exist,
-  **This option is only available on some plan levels**.
-  Please ask support if you need it for some reason.
-- :ref:`user-defined-redirects:page redirects` and :ref:`user-defined-redirects:exact redirects`
+- By default, redirects only apply on pages that don't exist.
+  **Forced redirects** allow you to apply redirects on existing pages,
+  but incur a small performance penalty, so aren't enabled by default.
+  You can ask for them to be enabled via support.
+- Only :ref:`user-defined-redirects:page redirects` and :ref:`user-defined-redirects:exact redirects`
   can redirect to URLs outside Read the Docs,
   just include the protocol in ``To URL``, e.g ``https://example.com``.
-
 
 Built-in redirects
 ------------------
 
 This section explains the redirects that are automatically active for all projects and how they are useful.
 Built-in redirects are especially useful for creating and sharing incoming links,
-which is discussed indepth in :doc:`/automatic-redirects`.
+which is discussed indepth in :doc:`/guides/best-practice/links`.
 
 .. _page_redirects:
 
@@ -54,11 +52,11 @@ You can link to a specific page and have it redirect to your default version,
 allowing you to create links on external sources that are always up to date.
 This is done with the ``/page/`` URL prefix.
 
-For instance, you can reach the page you are reading now by going to https://docs.readthedocs.io/page/automatic-redirects.html.
+For instance, you can reach the page you are reading now by going to https://docs.readthedocs.io/page/guides/best-practice/links.html.
 
 Another way to handle this is the ``latest`` version.
 You can set your ``latest`` version to a specific version and just always link to ``latest``.
-You can reach this page by going to https://docs.readthedocs.io/en/latest/automatic-redirects.html.
+You can reach this page by going to https://docs.readthedocs.io/en/latest/guides/best-practice/links.html.
 
 .. _root_url_redirect:
 
@@ -83,6 +81,16 @@ For example::
 
 You can choose which is the :term:`default version` for Read the Docs to display.
 This usually corresponds to the most recent official release from your project.
+
+Root language redirect at ``/<lang>/``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A link to the root language of your documentation (``<slug>.readthedocs.io/en/``)
+will redirect to the  :term:`default version` of that language.
+
+For example, accessing the English language of the project will redirect you to the its default version (``stable``)::
+
+   https://docs.readthedocs.io/en/ -> https://docs.readthedocs.io/en/stable/
 
 Shortlink with ``https://<slug>.rtfd.io``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -145,7 +153,7 @@ You would set the following configuration::
     From URL: /example.html
     To URL: /examples/intro.html
 
-**Page Redirects apply to all versions of you documentation.**
+**Page Redirects apply to all versions of your documentation.**
 Because of this,
 the ``/`` at the start of the ``From URL`` doesn't include the ``/$lang/$version`` prefix (e.g.
 ``/en/latest``), but just the version-specific part of the URL.
