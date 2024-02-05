@@ -113,12 +113,8 @@ class Redirect(models.Model):
     position = models.PositiveIntegerField(
         _("Position"),
         default=0,
-        null=True,
         help_text=_("Order of execution of the redirect."),
     )
-
-    # TODO: remove this field and use `enabled` instead.
-    status = models.BooleanField(choices=[], default=True, null=True)
 
     create_dt = models.DateTimeField(auto_now_add=True)
     update_dt = models.DateTimeField(auto_now=True)
@@ -193,6 +189,11 @@ class Redirect(models.Model):
             to_url=self.to_url,
         )
 
+    @property
+    def redirects_to_external_domain(self):
+        """Check if the redirect is to an external domain."""
+        return bool(re.match("^https?://", self.to_url))
+
     def __str__(self):
         redirect_text = "{type}: {from_to_url}"
         if self.redirect_type in [PAGE_REDIRECT, EXACT_REDIRECT]:
@@ -242,7 +243,7 @@ class Redirect(models.Model):
 
            This method doesn't check if the current path matches ``from_url``,
            that should be done before calling this method
-           using ``Redirect.objects.get_redirect_path_with_status``.
+           using ``Redirect.objects.get_matching_redirect_with_path``.
 
         :param filename: The filename being served.
         :param path: The whole path from the request.
@@ -261,25 +262,43 @@ class Redirect(models.Model):
 
     def _redirect_with_wildcard(self, current_path):
         if self.from_url.endswith("*"):
-            # Detect infinite redirects of the form:
-            # /dir/* -> /dir/subdir/:splat
-            # For example:
-            # /dir/test.html will redirect to /dir/subdir/test.html,
-            # and if file doesn't exist, it will redirect to
-            # /dir/subdir/subdir/test.html and then to /dir/subdir/subdir/test.html and so on.
-            if ":splat" in self.to_url:
-                to_url_without_splat = self.to_url.split(":splat", maxsplit=1)[0]
-                if current_path.startswith(to_url_without_splat):
-                    log.debug(
-                        "Infinite redirect loop detected",
-                        redirect=self,
-                    )
-                    return None
+            if self._will_cause_infinite_redirect(current_path):
+                log.debug(
+                    "Infinite redirect loop detected",
+                    redirect=self,
+                )
+                return None
 
             splat = current_path[len(self.from_url_without_rest) :]
             to_url = self.to_url.replace(":splat", splat)
             return to_url
         return self.to_url
+
+    def _will_cause_infinite_redirect(self, current_path):
+        """
+        Check if this redirect will cause an infinite redirect for the given path.
+
+        We detect infinite redirects of the form:
+
+          /dir/* -> /dir/subdir/:splat
+
+        For example, /dir/test.html will redirect to /dir/subdir/test.html,
+        and if the file doesn't exist, it will redirect to
+        /dir/subdir/subdir/test.html and then to /dir/subdir/subdir/subdir/test.html and so on.
+
+        We do this by checking if we will redirect to a subdirectory of the current path,
+        and if the current path already starts with the path we will redirect to.
+        """
+        if self.from_url.endswith("*") and ":splat" in self.to_url:
+            to_url_without_splat = self.to_url.split(":splat", maxsplit=1)[0]
+
+            redirects_to_subpath = to_url_without_splat.startswith(
+                self.from_url_without_rest
+            )
+            if redirects_to_subpath and current_path.startswith(to_url_without_splat):
+                return True
+
+        return False
 
     def redirect_page(self, filename, path, language=None, version_slug=None):
         log.debug("Redirecting...", redirect=self)

@@ -174,6 +174,8 @@ class CommunityBaseSettings(Settings):
             RTDProductFeature(type=constants.TYPE_AUDIT_LOGS, value=self.RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS).to_item(),
             # Max number of concurrent builds.
             RTDProductFeature(type=constants.TYPE_CONCURRENT_BUILDS, value=self.RTD_MAX_CONCURRENT_BUILDS).to_item(),
+            # Max number of redirects allowed per project.
+            RTDProductFeature(type=constants.TYPE_REDIRECTS_LIMIT, value=100).to_item(),
         ))
 
     # A dictionary of Stripe products mapped to a RTDProduct object.
@@ -224,11 +226,11 @@ class CommunityBaseSettings(Settings):
             'rest_framework',
             'rest_framework.authtoken',
             "rest_framework_api_key",
+            "generic_relations",
             'corsheaders',
             'annoying',
             'django_extensions',
             'crispy_forms',
-            'messages_extends',
             'django_elasticsearch_dsl',
             'django_filters',
             'polymorphic',
@@ -349,13 +351,6 @@ class CommunityBaseSettings(Settings):
         },
     ]
 
-    MESSAGE_STORAGE = 'readthedocs.notifications.storages.FallbackUniqueStorage'
-
-    NOTIFICATION_BACKENDS = [
-        'readthedocs.notifications.backends.EmailBackend',
-        'readthedocs.notifications.backends.SiteBackend',
-    ]
-
     # Paths
     SITE_ROOT = os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -423,6 +418,7 @@ class CommunityBaseSettings(Settings):
                         'django.template.context_processors.request',
                         # Read the Docs processor
                         'readthedocs.core.context_processors.readthedocs_processor',
+                        'readthedocs.core.context_processors.user_notifications',
                     ],
                 },
             },
@@ -484,11 +480,6 @@ class CommunityBaseSettings(Settings):
         'quarter-finish-inactive-builds': {
             'task': 'readthedocs.projects.tasks.utils.finish_inactive_builds',
             'schedule': crontab(minute='*/15'),
-            'options': {'queue': 'web'},
-        },
-        'every-three-hour-clear-persistent-messages': {
-            'task': 'readthedocs.core.tasks.clear_persistent_messages',
-            'schedule': crontab(minute=0, hour='*/3'),
             'options': {'queue': 'web'},
         },
         'every-day-delete-old-search-queries': {
@@ -923,6 +914,14 @@ class CommunityBaseSettings(Settings):
                 'handlers': ['null'],
                 'propagate': False,
             },
+            'elastic_transport.transport': {
+                'handlers': ['null'],
+                'propagate': False,
+            },
+            'celery.worker.consumer.gossip': {
+                'handlers': ['null'],
+                'propagate': False,
+            },
         },
     }
 
@@ -933,10 +932,10 @@ class CommunityBaseSettings(Settings):
     MAILERLITE_API_KEY = None
 
     RTD_EMBED_API_EXTERNAL_DOMAINS = [
-        r'docs\.python\.org',
-        r'docs\.scipy\.org',
-        r'docs\.sympy\.org',
-        r'numpy\.org',
+        r'^docs\.python\.org$',
+        r'^docs\.scipy\.org$',
+        r'^docs\.sympy\.org$',
+        r'^numpy\.org$',
     ]
     RTD_EMBED_API_PAGE_CACHE_TIMEOUT = 5 * 10
     RTD_EMBED_API_DEFAULT_REQUEST_TIMEOUT = 1

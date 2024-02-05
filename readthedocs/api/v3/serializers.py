@@ -15,6 +15,8 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import slugify
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.notifications.messages import registry
+from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import (
@@ -60,10 +62,62 @@ class BuildCreateSerializer(serializers.ModelSerializer):
         fields = []
 
 
+class NotificationLinksSerializer(BaseLinksSerializer):
+    _self = serializers.SerializerMethodField()
+
+    def get__self(self, obj):
+        content_type_name = obj.attached_to_content_type.name
+        if content_type_name == "user":
+            url = "users-notifications-detail"
+            path = reverse(
+                url,
+                kwargs={
+                    "notification_pk": obj.pk,
+                    "parent_lookup_user__username": obj.attached_to.username,
+                },
+            )
+
+        elif content_type_name == "build":
+            url = "projects-builds-notifications-detail"
+            project_slug = obj.attached_to.project.slug
+            path = reverse(
+                url,
+                kwargs={
+                    "notification_pk": obj.pk,
+                    "parent_lookup_project__slug": project_slug,
+                    "parent_lookup_build__id": obj.attached_to_id,
+                },
+            )
+
+        elif content_type_name == "project":
+            url = "projects-notifications-detail"
+            project_slug = obj.attached_to.slug
+            path = reverse(
+                url,
+                kwargs={
+                    "notification_pk": obj.pk,
+                    "parent_lookup_project__slug": project_slug,
+                },
+            )
+
+        elif content_type_name == "organization":
+            url = "organizations-notifications-detail"
+            path = reverse(
+                url,
+                kwargs={
+                    "notification_pk": obj.pk,
+                    "parent_lookup_organization__slug": obj.attached_to.slug,
+                },
+            )
+
+        return self._absolute_url(path)
+
+
 class BuildLinksSerializer(BaseLinksSerializer):
     _self = serializers.SerializerMethodField()
     version = serializers.SerializerMethodField()
     project = serializers.SerializerMethodField()
+    notifications = serializers.SerializerMethodField()
 
     def get__self(self, obj):
         path = reverse(
@@ -92,6 +146,16 @@ class BuildLinksSerializer(BaseLinksSerializer):
             "projects-detail",
             kwargs={
                 "project_slug": obj.project.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_notifications(self, obj):
+        path = reverse(
+            "projects-builds-notifications-list",
+            kwargs={
+                "parent_lookup_project__slug": obj.project.slug,
+                "parent_lookup_build__id": obj.pk,
             },
         )
         return self._absolute_url(path)
@@ -188,6 +252,62 @@ class BuildSerializer(FlexFieldsModelSerializer):
             return obj.success
 
         return None
+
+
+class NotificationMessageSerializer(serializers.Serializer):
+    id = serializers.SlugField()
+    header = serializers.CharField(source="get_rendered_header")
+    body = serializers.CharField(source="get_rendered_body")
+    type = serializers.CharField()
+    icon_classes = serializers.CharField(source="get_display_icon_classes")
+
+    class Meta:
+        fields = [
+            "id",
+            "header",
+            "body",
+            "type",
+            "icon_classes",
+        ]
+
+
+class NotificationCreateSerializer(serializers.ModelSerializer):
+    message_id = serializers.ChoiceField(
+        choices=sorted([(key, key) for key in registry.messages])
+    )
+
+    class Meta:
+        model = Notification
+        fields = [
+            "message_id",
+            "dismissable",
+            "news",
+            "state",
+        ]
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    message = NotificationMessageSerializer(source="get_message", read_only=True)
+    attached_to_content_type = serializers.SerializerMethodField()
+    _links = NotificationLinksSerializer(source="*", read_only=True)
+    attached_to_id = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Notification
+        fields = [
+            "id",
+            "state",
+            "dismissable",
+            "news",
+            "attached_to_content_type",
+            "attached_to_id",
+            "message",
+            "_links",
+        ]
+        read_only_fields = ["dismissable", "news"]
+
+    def get_attached_to_content_type(self, obj):
+        return obj.attached_to_content_type.name
 
 
 class VersionLinksSerializer(BaseLinksSerializer):
@@ -859,8 +979,6 @@ class RedirectSerializerBase(serializers.ModelSerializer):
             "position",
             "_links",
         ]
-        # TODO: allow editing this field for projects that have this feature enabled.
-        read_only_fields = ["force"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -985,6 +1103,7 @@ class EnvironmentVariableSerializer(serializers.ModelSerializer):
 class OrganizationLinksSerializer(BaseLinksSerializer):
     _self = serializers.SerializerMethodField()
     projects = serializers.SerializerMethodField()
+    notifications = serializers.SerializerMethodField()
 
     def get__self(self, obj):
         path = reverse(
@@ -1000,6 +1119,15 @@ class OrganizationLinksSerializer(BaseLinksSerializer):
             "organizations-projects-list",
             kwargs={
                 "parent_lookup_organizations__slug": obj.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_notifications(self, obj):
+        path = reverse(
+            "organizations-notifications-list",
+            kwargs={
+                "parent_lookup_organization__slug": obj.slug,
             },
         )
         return self._absolute_url(path)

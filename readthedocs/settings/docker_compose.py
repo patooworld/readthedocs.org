@@ -83,10 +83,10 @@ class DockerBaseSettings(CommunityBaseSettings):
         domains = super().RTD_EMBED_API_EXTERNAL_DOMAINS
         domains.extend(
             [
-                r".*\.readthedocs\.io",
-                r".*\.org\.readthedocs\.build",
-                r".*\.readthedocs-hosted\.com",
-                r".*\.com\.readthedocs\.build",
+                r"^.*\.readthedocs\.io$",
+                r"^.*\.org\.readthedocs\.build$",
+                r"^.*\.readthedocs-hosted\.com$",
+                r"^.*\.com\.readthedocs\.build$",
             ]
         )
         return domains
@@ -203,7 +203,7 @@ class DockerBaseSettings(CommunityBaseSettings):
     AWS_S3_ENDPOINT_URL = "http://storage:9000/"
     AWS_QUERYSTRING_AUTH = False
 
-    STRIPE_SECRET = os.environ.get("RTD_STRIPE_SECRET")
+    STRIPE_SECRET = os.environ.get("RTD_STRIPE_SECRET", "sk_test_x")
     STRIPE_PUBLISHABLE = os.environ.get("RTD_STRIPE_PUBLISHABLE")
     STRIPE_TEST_SECRET_KEY = STRIPE_SECRET
     DJSTRIPE_WEBHOOK_SECRET = os.environ.get("RTD_DJSTRIPE_WEBHOOK_SECRET")
@@ -220,6 +220,7 @@ class DockerBaseSettings(CommunityBaseSettings):
     # Remove the checks on the number of fields being submitted
     # This limit is mostly hit on large forms in the Django admin
     DATA_UPLOAD_MAX_NUMBER_FIELDS = None
+    SUPPORT_EMAIL = "support@example.com"
 
 
 DockerBaseSettings.load_settings(__name__)

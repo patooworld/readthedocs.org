@@ -72,11 +72,11 @@ class WebhookMixin:
     integration = None
     integration_type = None
     invalid_payload_msg = 'Payload not valid'
-    missing_secret_for_pr_events_msg = dedent(
+    missing_secret_deprecated_msg = dedent(
         """
-        The webhook doesn't have a secret configured.
-        For security reasons, webhooks without a secret can't process pull/merge request events.
-        You can read more information about this in our blog post: https://blog.readthedocs.com/security-update-on-incoming-webhooks/.
+        This webhook doesn't have a secret configured.
+        For security reasons, webhooks without a secret are no longer permitted.
+        For more information, read our blog post: https://blog.readthedocs.com/security-update-on-incoming-webhooks/.
         """
     ).strip()
 
@@ -105,6 +105,15 @@ class WebhookMixin:
                 return Response(resp, status=status.HTTP_406_NOT_ACCEPTABLE)
         except Project.DoesNotExist as exc:
             raise NotFound("Project not found") from exc
+
+        # Webhooks without a secret are no longer permitted.
+        # https://blog.readthedocs.com/security-update-on-incoming-webhooks/.
+        if not self.has_secret():
+            return Response(
+                {"detail": self.missing_secret_deprecated_msg},
+                status=HTTP_400_BAD_REQUEST,
+            )
+
         if not self.is_payload_valid():
             log.warning('Invalid payload for project and integration.')
             return Response(
@@ -121,6 +130,12 @@ class WebhookMixin:
         if isinstance(resp, Response):
             return resp
         return Response(resp)
+
+    def has_secret(self):
+        integration = self.get_integration()
+        if hasattr(integration, "token"):
+            return bool(integration.token)
+        return bool(integration.secret)
 
     def get_project(self, **kwargs):
         return Project.objects.get(**kwargs)
@@ -390,12 +405,9 @@ class GitHubWebhookView(WebhookMixin, APIView):
         See https://developer.github.com/webhooks/securing/.
         """
         signature = self.request.headers.get(GITHUB_SIGNATURE_HEADER)
-        secret = self.get_integration().secret
-        if not secret:
-            log.debug('Skipping payload signature validation.')
-            return True
         if not signature:
             return False
+        secret = self.get_integration().secret
         msg = self.request.body.decode()
         digest = WebhookMixin.get_digest(secret, msg)
         result = hmac.compare_digest(
@@ -464,13 +476,6 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
         # Handle pull request events.
         if self.project.external_builds_enabled and event == GITHUB_PULL_REQUEST:
-            # Requests from anonymous users are ignored.
-            if not integration.secret:
-                return Response(
-                    {"detail": self.missing_secret_for_pr_events_msg},
-                    status=HTTP_400_BAD_REQUEST,
-                )
-
             if action in [
                 GITHUB_PULL_REQUEST_OPENED,
                 GITHUB_PULL_REQUEST_REOPENED,
@@ -570,10 +575,9 @@ class GitLabWebhookView(WebhookMixin, APIView):
         See https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#secret-token.
         """
         token = self.request.headers.get(GITLAB_TOKEN_HEADER, "")
+        if not token:
+            return False
         secret = self.get_integration().secret
-        if not secret:
-            log.debug('Skipping payload signature validation.')
-            return True
         return constant_time_compare(secret, token)
 
     def get_external_version_data(self):
@@ -608,8 +612,6 @@ class GitLabWebhookView(WebhookMixin, APIView):
             event=event,
         )
 
-        integration = self.get_integration()
-
         # Always update `latest` branch to point to the default branch in the repository
         # even if the event is not gonna be handled. This helps us to keep our db in sync.
         default_branch = self.data.get("project", {}).get("default_branch", None)
@@ -637,12 +639,6 @@ class GitLabWebhookView(WebhookMixin, APIView):
                 raise ParseError('Parameter "ref" is required') from exc
 
         if self.project.external_builds_enabled and event == GITLAB_MERGE_REQUEST:
-            if not integration.secret:
-                return Response(
-                    {"detail": self.missing_secret_for_pr_events_msg},
-                    status=HTTP_400_BAD_REQUEST,
-                )
-
             if action in [
                 GITLAB_MERGE_REQUEST_OPEN,
                 GITLAB_MERGE_REQUEST_REOPEN,
@@ -751,12 +747,9 @@ class BitbucketWebhookView(WebhookMixin, APIView):
         See https://support.atlassian.com/bitbucket-cloud/docs/manage-webhooks/#Secure-webhooks.
         """
         signature = self.request.headers.get(BITBUCKET_SIGNATURE_HEADER)
-        secret = self.get_integration().secret
-        if not secret:
-            log.debug("Skipping payload signature validation.")
-            return True
         if not signature:
             return False
+        secret = self.get_integration().secret
         msg = self.request.body.decode()
         digest = WebhookMixin.get_digest(secret, msg)
         result = hmac.compare_digest(

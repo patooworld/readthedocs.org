@@ -1244,8 +1244,6 @@ Redirect create
          * ``page`` and ``exact`` types require ``from_url`` and ``to_url``.
          * ``clean_url_to_html`` and ``html_to_clean_url`` types do not require ``from_url`` and ``to_url``.
 
-       - Forced redirects are not enabled by default,
-         you can ask for them to be enabled via support.
        - Position starts at 0 and is used to order redirects.
 
     **Example response**:
@@ -1896,6 +1894,11 @@ Embed
     Retrieve HTML-formatted content from documentation page or section.
     Read :doc:`/guides/embedding-content` to know more about how to use this endpoint.
 
+    .. warning::
+
+       The content will be returned as is, without any sanitization or escaping.
+       You should not include content from arbitrary projects, or projects you do not trust.
+
     **Example request**:
 
     .. prompt:: bash $
@@ -1926,7 +1929,6 @@ Embed
 
        Passing ``?doctool=`` and ``?doctoolversion=`` may improve the response,
        since the endpoint will know more about the exact structure of the HTML and can make better decisions.
-
 
 Additional APIs
 ---------------

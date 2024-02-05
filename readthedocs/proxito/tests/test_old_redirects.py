@@ -15,6 +15,7 @@ from django.test.utils import override_settings
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version
+from readthedocs.projects.constants import SINGLE_VERSION_WITHOUT_TRANSLATIONS
 from readthedocs.projects.models import Feature
 from readthedocs.redirects.constants import (
     CLEAN_URL_TO_HTML_REDIRECT,
@@ -406,6 +407,78 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
                 "/en/latest/dir/subdir/redirect.html",
                 headers={"host": "project.dev.readthedocs.io"},
             )
+
+    def test_exact_redirect_to_parent_path(self):
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        self.project.save()
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/*",
+            to_url="/:splat",
+        )
+        r = self.client.get(
+            "/en/latest/dir/redirect.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/dir/redirect.html",
+        )
+
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/one/two/*",
+            to_url="/one/:splat",
+        )
+        r = self.client.get(
+            "/one/two/three/redirect.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/one/three/redirect.html",
+        )
+
+    def test_page_redirect_to_parent_path(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=PAGE_REDIRECT,
+            from_url="/guides/*",
+            to_url="/:splat",
+        )
+        r = self.client.get(
+            "/en/latest/guides/redirect.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/redirect.html",
+        )
+
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=PAGE_REDIRECT,
+            from_url="/one/two/*",
+            to_url="/one/:splat",
+        )
+        r = self.client.get(
+            "/en/latest/one/two/three/redirect.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/one/three/redirect.html",
+        )
 
     def test_redirect_root(self):
         Redirect.objects.create(
@@ -1242,6 +1315,37 @@ class UserRedirectCrossdomainTest(BaseDocServing):
             (
                 "http://project.dev.readthedocs.io/%0A/my.host/path.html",
                 "http://project.dev.readthedocs.io/en/latest/my.host/path.html",
+            ),
+        ]
+        for url, expected_location in urls:
+            r = self.client.get(url, headers={"host": "project.dev.readthedocs.io"})
+            self.assertEqual(r.status_code, 302, url)
+            self.assertEqual(r["Location"], expected_location, url)
+
+    def test_redirect_exact_with_wildcard_crossdomain(self):
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        self.project.save()
+
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/*",
+            to_url="/:splat",
+        )
+        urls = [
+            (
+                "http://project.dev.readthedocs.io/en/latest/%0D/example.com/path.html",
+                "http://project.dev.readthedocs.io//example.com/path.html",
+            ),
+            # These are caught by the slash redirect.
+            (
+                "http://project.dev.readthedocs.io/en/latest//example.com",
+                "/en/latest/example.com",
+            ),
+            (
+                "http://project.dev.readthedocs.io/en/latest/https://example.com",
+                "/en/latest/https:/example.com",
             ),
         ]
         for url, expected_location in urls:

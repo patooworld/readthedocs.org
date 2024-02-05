@@ -49,7 +49,9 @@ from readthedocs.builds.constants import (
     LATEST,
 )
 from readthedocs.builds.models import APIVersion, Build, BuildCommandResult, Version
+from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.integrations.models import GenericAPIWebhook, Integration
+from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import (
     RemoteOrganization,
     RemoteOrganizationRelation,
@@ -108,7 +110,13 @@ class APIBuildTests(TestCase):
         )
         build.commands.add(command)
 
+        Notification.objects.add(
+            attached_to=build,
+            message_id=BuildUserError.SKIPPED_EXIT_CODE_183,
+        )
+
         self.assertEqual(build.commands.count(), 1)
+        self.assertEqual(build.notifications.count(), 1)
 
         client = APIClient()
         _, build_api_key = BuildAPIKey.objects.create_key(self.project)
@@ -129,6 +137,7 @@ class APIBuildTests(TestCase):
         self.assertEqual(build.builder, '')
         self.assertFalse(build.cold_storage)
         self.assertEqual(build.commands.count(), 0)
+        self.assertEqual(build.notifications.count(), 0)
 
 
     def test_api_does_not_have_private_config_key_superuser(self):
@@ -2278,25 +2287,6 @@ class IntegrationsTests(TestCase):
             GitHubWebhookView.invalid_payload_msg
         )
 
-    def test_github_skip_signature_validation(self, trigger_build):
-        client = APIClient()
-        payload = '{"ref":"master"}'
-        Integration.objects.filter(pk=self.github_integration.pk).update(secret=None)
-        headers = {
-            GITHUB_EVENT_HEADER: GITHUB_PUSH,
-            GITHUB_SIGNATURE_HEADER: 'skipped',
-        }
-        resp = client.post(
-            reverse(
-                'api_webhook_github',
-                kwargs={'project_slug': self.project.slug}
-            ),
-            json.loads(payload),
-            format='json',
-            headers=headers,
-        )
-        self.assertEqual(resp.status_code, 200)
-
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task', mock.MagicMock())
     def test_github_sync_on_push_event(self, trigger_build):
         """Sync if the webhook doesn't have the create/delete events, but we receive a push event with created/deleted."""
@@ -2637,23 +2627,6 @@ class IntegrationsTests(TestCase):
             resp.data['detail'],
             GitLabWebhookView.invalid_payload_msg
         )
-
-    def test_gitlab_skip_token_validation(self, trigger_build):
-        client = APIClient()
-        Integration.objects.filter(pk=self.gitlab_integration.pk).update(secret=None)
-        headers = {
-            GITLAB_TOKEN_HEADER: 'skipped',
-        }
-        resp = client.post(
-            reverse(
-                'api_webhook_gitlab',
-                kwargs={'project_slug': self.project.slug}
-            ),
-            {'object_kind': 'pull_request'},
-            format='json',
-            headers=headers,
-        )
-        self.assertEqual(resp.status_code, 200)
 
     @mock.patch('readthedocs.core.utils.trigger_build')
     def test_gitlab_merge_request_open_event(self, trigger_build, core_trigger_build):
@@ -3238,6 +3211,31 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.data['build_triggered'])
         self.assertEqual(resp.data['versions'], ['v1.0'])
+
+    def test_dont_allow_webhooks_without_a_secret(self, trigger_build):
+        client = APIClient()
+
+        Integration.objects.filter(pk=self.github_integration.pk).update(secret=None)
+        resp = client.post(
+            f"/api/v2/webhook/github/{self.project.slug}/",
+            self.github_payload,
+            format="json",
+            headers={GITHUB_SIGNATURE_HEADER: "skip"},
+        )
+        self.assertContains(
+            resp, "This webhook doesn't have a secret configured.", status_code=400
+        )
+
+        self.generic_integration.provider_data = {"token": None}
+        self.generic_integration.save()
+        resp = client.post(
+            f"/api/v2/webhook/{self.project.slug}/{self.generic_integration.pk}/",
+            {"token": "skip"},
+            format="json",
+        )
+        # For generic webhooks, we first check if the secret matches,
+        # and return a 400 if it doesn't.
+        self.assertEqual(resp.status_code, 404)
 
 
 @override_settings(PUBLIC_DOMAIN="readthedocs.io")

@@ -13,10 +13,11 @@ from readthedocs.builds.constants import (
     EXTERNAL,
 )
 from readthedocs.builds.models import Build
-from readthedocs.config import ALL, ConfigError
+from readthedocs.config import ALL
 from readthedocs.config.config import BuildConfigV2
+from readthedocs.config.exceptions import ConfigError
 from readthedocs.config.tests.test_config import get_build_config
-from readthedocs.doc_builder.exceptions import BuildAppError
+from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import EnvironmentVariable, Project, WebHookEvent
 from readthedocs.projects.tasks.builds import sync_repository_task, update_docs_task
@@ -120,10 +121,10 @@ class TestCustomConfigFile(BuildEnvironmentBase):
         # Assert that we are building a PDF, since that is what our custom config file says
         build_docs_class.assert_called_with("sphinx_pdf")
 
-    @mock.patch("readthedocs.core.utils.filesystem._assert_path_is_inside_docroot")
+    @mock.patch("readthedocs.core.utils.filesystem.assert_path_is_inside_docroot")
     @mock.patch("readthedocs.doc_builder.director.BuildDirector.build_docs_class")
     def test_config_file_is_loaded(
-        self, build_docs_class, _assert_path_is_inside_docroot
+        self, build_docs_class, assert_path_is_inside_docroot
     ):
         """Test that a custom config file is loaded
 
@@ -131,7 +132,7 @@ class TestCustomConfigFile(BuildEnvironmentBase):
         to the repo."""
 
         # While testing, we are unsure if temporary test files exist in the docroot
-        _assert_path_is_inside_docroot.return_value = True
+        assert_path_is_inside_docroot.return_value = True
 
         self.mocker.add_file_in_repo_checkout(
             self.config_file_name,
@@ -190,7 +191,6 @@ class TestBuildTask(BuildEnvironmentBase):
                 "-m",
                 "sphinx",
                 "-T",
-                "-E",
                 "-b",
                 "html",
                 "-d",
@@ -211,7 +211,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     "-m",
                     "sphinx",
                     "-T",
-                    "-E",
                     "-b",
                     builder,
                     "-d",
@@ -637,10 +636,9 @@ class TestBuildTask(BuildEnvironmentBase):
 
         # Force an exception from the execution of the task. We don't really
         # care "where" it was raised: setup, build, syncing directories, etc
-        execute.side_effect = Exception('Force and exception here.')
+        execute.side_effect = BuildUserError(message_id=BuildUserError.GENERIC)
 
         self._trigger_update_docs_task()
-
 
         # It has to be called twice, ``before_start`` and ``after_return``
         clean_build.assert_has_calls([
@@ -670,15 +668,27 @@ class TestBuildTask(BuildEnvironmentBase):
         # and the task won't be run.
         assert not BuildData.objects.all().exists()
 
+        notification_request = self.requests_mock.request_history[-3]
+        assert notification_request._request.method == "POST"
+        assert notification_request.path == "/api/v2/notifications/"
+        assert notification_request.json() == {
+            "attached_to": f"build/{self.build.pk}",
+            "message_id": BuildUserError.GENERIC,
+            "state": "unread",
+            "dismissable": False,
+            "news": False,
+            "format_values": {},
+        }
+
         # Test we are updating the DB by calling the API with the updated build object
         # The second last one should be the PATCH for the build
-        api_request = self.requests_mock.request_history[-2]
-        assert api_request._request.method == "PATCH"
-        assert api_request.path == "/api/v2/build/1/"
-        assert api_request.json() == {
+        build_status_request = self.requests_mock.request_history[-2]
+        assert build_status_request._request.method == "PATCH"
+        assert build_status_request.path == "/api/v2/build/1/"
+        assert build_status_request.json() == {
             "builder": mock.ANY,
             "commit": self.build.commit,
-            "error": BuildAppError.GENERIC_WITH_BUILD_ID.format(build_id=self.build.pk),
+            "error": "",  # We are not sending ``error`` anymore
             "id": self.build.pk,
             "length": mock.ANY,
             "state": "finished",
@@ -817,7 +827,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     "-m",
                     "sphinx",
                     "-T",
-                    "-E",
                     "-b",
                     "html",
                     "-d",
@@ -834,7 +843,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     "-m",
                     "sphinx",
                     "-T",
-                    "-E",
                     "-b",
                     "readthedocssinglehtmllocalmedia",
                     "-d",
@@ -879,7 +887,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     "-m",
                     "sphinx",
                     "-T",
-                    "-E",
                     "-b",
                     "latex",
                     "-d",
@@ -899,7 +906,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     "-m",
                     "sphinx",
                     "-T",
-                    "-E",
                     "-b",
                     "epub",
                     "-d",
@@ -1455,7 +1461,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     "-m",
                     "sphinx",
                     "-T",
-                    "-E",
                     "-W",  # fail on warning flag
                     "--keep-going",  # fail on warning flag
                     "-b",
@@ -1494,7 +1499,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     "-m",
                     "sphinx",
                     "-T",
-                    "-E",
                     "-W",  # fail on warning flag
                     "--keep-going",  # fail on warning flag
                     "-b",
@@ -1831,7 +1835,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     "-m",
                     "sphinx",
                     "-T",
-                    "-E",
                     "-b",
                     command,
                     "-d",
@@ -1851,21 +1854,32 @@ class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_config_file_exception(self, load_yaml_config):
         load_yaml_config.side_effect = ConfigError(
-            code="invalid", message="Invalid version in config file."
+            message_id=ConfigError.INVALID_VERSION,
         )
         self._trigger_update_docs_task()
 
-        # This is a known exceptions. We hit the API saving the correct error
-        # in the Build object. In this case, the "error message" coming from
-        # the exception will be shown to the user
-        api_request = self.requests_mock.request_history[-2]
-        assert api_request._request.method == "PATCH"
-        assert api_request.path == "/api/v2/build/1/"
-        assert api_request.json() == {
+        # This is a known exceptions. We hit the notification API to attach a
+        # notification to this particular build.
+        notification_request = self.requests_mock.request_history[-3]
+        assert notification_request._request.method == "POST"
+        assert notification_request.path == "/api/v2/notifications/"
+        assert notification_request.json() == {
+            "attached_to": f"build/{self.build.pk}",
+            "message_id": ConfigError.INVALID_VERSION,
+            "state": "unread",
+            "dismissable": False,
+            "news": False,
+            "format_values": {},
+        }
+
+        build_status_request = self.requests_mock.request_history[-2]
+        assert build_status_request._request.method == "PATCH"
+        assert build_status_request.path == "/api/v2/build/1/"
+        assert build_status_request.json() == {
             "id": 1,
             "state": "finished",
             "commit": "a1b2c3",
-            "error": "Problem in your project's configuration. Invalid version in config file.",
+            "error": "",  # We not sending "error" anymore
             "success": False,
             "builder": mock.ANY,
             "length": 0,
@@ -1926,4 +1940,4 @@ class TestSyncRepositoryTask(BuildEnvironmentBase):
 
         exception = on_failure.call_args[0][0]
         assert isinstance(exception, RepositoryError) == True
-        assert exception.message == RepositoryError.DUPLICATED_RESERVED_VERSIONS
+        assert exception.message_id == RepositoryError.DUPLICATED_RESERVED_VERSIONS

@@ -18,7 +18,6 @@ from requests.exceptions import ConnectionError
 from readthedocs.builds import utils as version_utils
 from readthedocs.builds.models import APIVersion
 from readthedocs.core.utils.filesystem import safe_open
-from readthedocs.doc_builder.exceptions import PDFNotFound
 from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING, PUBLIC
 from readthedocs.projects.exceptions import ProjectConfigurationError, UserFileNotFound
 from readthedocs.projects.models import Feature
@@ -259,7 +258,10 @@ class BaseSphinx(BaseBuilder):
 
         if not os.path.exists(self.config_file):
             raise UserFileNotFound(
-                UserFileNotFound.FILE_NOT_FOUND.format(self.config_file)
+                message_id=UserFileNotFound.FILE_NOT_FOUND,
+                format_values={
+                    "filename": os.path.relpath(self.config_file, self.project_path),
+                },
             )
 
         # Allow symlinks, but only the ones that resolve inside the base directory.
@@ -293,7 +295,6 @@ class BaseSphinx(BaseBuilder):
         build_command = [
             *self.get_sphinx_cmd(),
             "-T",
-            "-E",
         ]
         if self.config.sphinx.fail_on_warning:
             build_command.extend(["-W", "--keep-going"])
@@ -481,7 +482,6 @@ class PdfBuilder(BaseSphinx):
         self.run(
             *self.get_sphinx_cmd(),
             "-T",
-            "-E",
             "-b",
             self.sphinx_builder,
             "-d",
@@ -502,7 +502,7 @@ class PdfBuilder(BaseSphinx):
 
         tex_files = glob(os.path.join(self.absolute_host_output_dir, "*.tex"))
         if not tex_files:
-            raise BuildUserError("No TeX files were found.")
+            raise BuildUserError(message_id=BuildUserError.TEX_FILE_NOT_FOUND)
 
         # Run LaTeX -> PDF conversions
         success = self._build_latexmk(self.project_path)
@@ -581,7 +581,7 @@ class PdfBuilder(BaseSphinx):
         """Internal post build to cleanup PDF output directory and leave only one .pdf file."""
 
         if not self.pdf_file_name:
-            raise PDFNotFound()
+            raise BuildUserError(BuildUserError.PDF_NOT_FOUND)
 
         # TODO: merge this with ePUB since it's pretty much the same
         temp_pdf_file = f"/tmp/{self.project.slug}-{self.version.slug}.pdf"

@@ -36,6 +36,7 @@ from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import extract_valid_attributes_for_model, slugify
 from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
+from readthedocs.notifications.models import Notification as NewNotification
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.managers import HTMLFileManager
@@ -64,6 +65,8 @@ from .constants import (
     MEDIA_TYPES,
     MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
     MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
+    PRIVATE,
+    PUBLIC,
 )
 
 log = structlog.get_logger(__name__)
@@ -157,7 +160,10 @@ class AddonsConfig(TimeStampedModel):
     )
 
     # Analytics
-    analytics_enabled = models.BooleanField(default=True)
+
+    # NOTE: we keep analytics disabled by default to save resources.
+    # Most projects won't be taking a look at these numbers.
+    analytics_enabled = models.BooleanField(default=False)
 
     # Docdiff
     doc_diff_enabled = models.BooleanField(default=True)
@@ -353,7 +359,7 @@ class Project(models.Model):
         choices=constants.PRIVACY_CHOICES,
         default=default_privacy_level,
         help_text=_(
-            'Should builds from pull requests be public?',
+            "Should builds from pull requests be public? <strong>If your repository is public, don't set this to private</strong>."
         ),
     )
 
@@ -537,6 +543,13 @@ class Project(models.Model):
         blank=True,
     )
 
+    notifications = GenericRelation(
+        NewNotification,
+        related_query_name="project",
+        content_type_field="attached_to_content_type",
+        object_id_field="attached_to_id",
+    )
+
     # TODO: remove the following fields since they all are going to be ignored
     # by the application when we start requiring a ``.readthedocs.yaml`` file.
     # These fields are:
@@ -649,6 +662,11 @@ class Project(models.Model):
                 raise Exception(  # pylint: disable=broad-exception-raised
                     _("Model must have slug")
                 )
+
+        if self.remote_repository:
+            privacy_level = PRIVATE if self.remote_repository.private else PUBLIC
+            self.external_builds_privacy_level = privacy_level
+
         super().save(*args, **kwargs)
 
         try:
@@ -1588,6 +1606,9 @@ class HTMLFile(ImportedFile):
 
 
 class Notification(TimeStampedModel):
+
+    """WebHook / Email notification attached to a Project."""
+
     # TODO: Overridden from TimeStampedModel just to allow null values,
     # remove after deploy.
     created = CreationDateTimeField(
@@ -1940,7 +1961,6 @@ class Feature(models.Model):
     CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
     ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
     RECORD_404_PAGE_VIEWS = "record_404_page_views"
-    ALLOW_FORCED_REDIRECTS = "allow_forced_redirects"
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
@@ -1966,25 +1986,6 @@ class Feature(models.Model):
     # Build related features
     SCALE_IN_PROTECTION = "scale_in_prtection"
 
-    # Addons related features
-    HOSTING_INTEGRATIONS = "hosting_integrations"
-    # NOTE: this is mainly temporal while we are rolling these features out.
-    # The idea here is to have more control over particular projects and do some testing.
-    # All these features will be enabled by default to all projects,
-    # and we can disable them if we want to
-    ADDONS_ANALYTICS_DISABLED = "addons_analytics_disabled"
-    ADDONS_DOC_DIFF_DISABLED = "addons_doc_diff_disabled"
-    ADDONS_ETHICALADS_DISABLED = "addons_ethicalads_disabled"
-    ADDONS_EXTERNAL_VERSION_WARNING_DISABLED = (
-        "addons_external_version_warning_disabled"
-    )
-    ADDONS_FLYOUT_DISABLED = "addons_flyout_disabled"
-    ADDONS_NON_LATEST_VERSION_WARNING_DISABLED = (
-        "addons_non_latest_version_warning_disabled"
-    )
-    ADDONS_SEARCH_DISABLED = "addons_search_disabled"
-    ADDONS_HOTKEYS_DISABLED = "addons_hotkeys_disabled"
-
     FEATURES = (
         (
             MKDOCS_THEME_RTD,
@@ -2008,10 +2009,6 @@ class Feature(models.Model):
         (
             RECORD_404_PAGE_VIEWS,
             _("Proxito: Record 404s page views."),
-        ),
-        (
-            ALLOW_FORCED_REDIRECTS,
-            _("Proxito: Allow forced redirects."),
         ),
         (
             DISABLE_PAGEVIEWS,
@@ -2081,45 +2078,6 @@ class Feature(models.Model):
         (
             SCALE_IN_PROTECTION,
             _("Build: Set scale-in protection before/after building."),
-        ),
-        # Addons related features.
-        (
-            HOSTING_INTEGRATIONS,
-            _(
-                "Proxito: Inject 'readthedocs-addons.js' as <script> HTML tag in responses."
-            ),
-        ),
-        (
-            ADDONS_ANALYTICS_DISABLED,
-            _("Addons: Disable Analytics."),
-        ),
-        (
-            ADDONS_DOC_DIFF_DISABLED,
-            _("Addons: Disable Doc Diff."),
-        ),
-        (
-            ADDONS_ETHICALADS_DISABLED,
-            _("Addons: Disable EthicalAds."),
-        ),
-        (
-            ADDONS_EXTERNAL_VERSION_WARNING_DISABLED,
-            _("Addons: Disable External version warning."),
-        ),
-        (
-            ADDONS_FLYOUT_DISABLED,
-            _("Addons: Disable Flyout."),
-        ),
-        (
-            ADDONS_NON_LATEST_VERSION_WARNING_DISABLED,
-            _("Addons: Disable Non latest version warning."),
-        ),
-        (
-            ADDONS_SEARCH_DISABLED,
-            _("Addons: Disable Search."),
-        ),
-        (
-            ADDONS_HOTKEYS_DISABLED,
-            _("Addons: Disable Hotkeys."),
         ),
     )
 

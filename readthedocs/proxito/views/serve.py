@@ -23,6 +23,7 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.core.utils.requests import is_suspicious_request
 from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING, PRIVATE
 from readthedocs.projects.models import Domain, Feature, HTMLFile
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
@@ -333,26 +334,21 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
 
         # Check for forced redirects on non-external domains only.
         if not unresolved_domain.is_from_external_domain:
-            redirect_path, http_status = self.get_redirect(
-                project=project,
-                lang_slug=project.language,
-                version_slug=version.slug,
-                filename=filename,
-                path=request.path,
-                forced_only=True,
-            )
-            if redirect_path and http_status:
-                log.bind(forced_redirect=True)
-                try:
-                    return self.get_redirect_response(
-                        request=request,
-                        redirect_path=redirect_path,
-                        proxito_path=request.path,
-                        http_status=http_status,
-                    )
-                except InfiniteRedirectException:
-                    # Continue with our normal serve.
-                    pass
+            try:
+                redirect_response = self.get_redirect_response(
+                    request=request,
+                    project=project,
+                    language=project.language,
+                    version_slug=version.slug,
+                    filename=filename,
+                    path=request.path,
+                    forced_only=True,
+                )
+                if redirect_response:
+                    return redirect_response
+            except InfiniteRedirectException:
+                # Continue with our normal serve.
+                pass
 
         # Check user permissions and return an unauthed response if needed.
         if not self.allowed_user(request, version):
@@ -485,31 +481,31 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         # ``index.html`` and ``README.html`` to emulate the behavior we had when
         # serving directly from NGINX without passing through Python.
         if not unresolved_domain.is_from_external_domain:
-            redirect_path, http_status = self.get_redirect(
+            try:
+                redirect_response = self.get_redirect_response(
+                    request=request,
+                    project=project,
+                    language=lang_slug,
+                    version_slug=version_slug,
+                    filename=filename,
+                    path=proxito_path,
+                )
+                if redirect_response:
+                    return redirect_response
+            except InfiniteRedirectException:
+                # ``get_redirect_response`` raises this when it's redirecting back to itself.
+                # We can safely ignore it here because it's logged in ``canonical_redirect``,
+                # and we don't want to issue infinite redirects.
+                pass
+
+        # Register 404 pages into our database for user's analytics.
+        if not unresolved_domain.is_from_external_domain:
+            self._register_broken_link(
                 project=project,
-                lang_slug=lang_slug,
-                version_slug=version_slug,
+                version=version,
                 filename=filename,
                 path=proxito_path,
             )
-            if redirect_path and http_status:
-                try:
-                    return self.get_redirect_response(
-                        request, redirect_path, proxito_path, http_status
-                    )
-                except InfiniteRedirectException:
-                    # ``get_redirect_response`` raises this when it's redirecting back to itself.
-                    # We can safely ignore it here because it's logged in ``canonical_redirect``,
-                    # and we don't want to issue infinite redirects.
-                    pass
-
-        # Register 404 pages into our database for user's analytics
-        self._register_broken_link(
-            project=project,
-            version=version,
-            path=filename,
-            full_path=proxito_path,
-        )
 
         response = self._get_custom_404_page(
             request=request,
@@ -527,33 +523,26 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             path_not_found=proxito_path,
         )
 
-    def _register_broken_link(self, project, version, path, full_path):
+    def _register_broken_link(self, project, version, filename, path):
         try:
             if not project.has_feature(Feature.RECORD_404_PAGE_VIEWS):
                 return
 
-            # This header is set from Cloudflare,
-            # it goes from 0 to 100, 0 being low risk,
-            # and values above 10 are bots/spammers.
-            # https://developers.cloudflare.com/ruleset-engine/rules-language/fields/#dynamic-fields.
-            threat_score = int(self.request.headers.get("X-Cloudflare-Threat-Score", 0))
-            if threat_score > 10:
+            if is_suspicious_request(self.request):
                 log.info(
-                    "Suspicious threat score, not recording 404.",
-                    threat_score=threat_score,
+                    "Suspicious request, not recording 404.",
                 )
                 return
 
-            # If the path isn't attached to a version
-            # it should be the same as the full_path,
+            # If we don't have a version, the filename is the path,
             # otherwise it would be empty.
             if not version:
-                path = full_path
+                filename = path
             PageView.objects.register_page_view(
                 project=project,
                 version=version,
+                filename=filename,
                 path=path,
-                full_path=full_path,
                 status=404,
             )
         except Exception:
@@ -562,7 +551,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             log.exception(
                 "Error while recording the broken link",
                 project_slug=project.slug,
-                full_path=full_path,
+                path=path,
             )
 
     def _get_custom_404_page(self, request, project, version=None):
