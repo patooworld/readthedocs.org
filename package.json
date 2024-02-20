@@ -15,7 +15,7 @@
     "bowser": "^1.9.3",
     "cssfilter": "0.0.8",
     "github-changelog": "git+https://github.com/agjohnson/github-changelog.git",
-    "npm": "^7.0.0",
+    "npm": "^7.21.0",
     "@snyk/protect": "latest"
   },
   "devDependencies": {
