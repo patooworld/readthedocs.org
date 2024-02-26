@@ -80,7 +80,11 @@ cron-descriptor==1.4.3
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
+snyk-fix-4d0252df4383bbb08a7012717f3f832d
+cryptography==42.0.4
+
 cryptography==42.0.5
+99pace
     # via
     #   -r requirements/pip.txt
     #   pyjwt
