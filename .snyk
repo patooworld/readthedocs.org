@@ -8,3 +8,101 @@ patch:
         patched: '2023-12-01T12:43:36.926Z'
         id: 'npm:semver:20150403'
         path: npm > semver
+    - debowerify > bower > semver:
+        patched: '2024-02-20T16:40:12.009Z'
+        id: 'npm:semver:20150403'
+        path: debowerify > bower > semver
+    - debowerify > bower > update-notifier > semver-diff > semver:
+        patched: '2024-02-20T16:40:12.009Z'
+        id: 'npm:semver:20150403'
+        path: debowerify > bower > update-notifier > semver-diff > semver
+    - debowerify > bower > update-notifier > latest-version > package-json > registry-url > npmconf > semver:
+        patched: '2024-02-20T16:40:12.009Z'
+        id: 'npm:semver:20150403'
+        path: >-
+          debowerify > bower > update-notifier > latest-version > package-json >
+          registry-url > npmconf > semver
+  'npm:hawk:20160119':
+    - debowerify > bower > request > hawk:
+        patched: '2024-02-20T16:40:12.009Z'
+        id: 'npm:hawk:20160119'
+        path: debowerify > bower > request > hawk
+    - debowerify > bower > bower-registry-client > request > hawk:
+        patched: '2024-02-20T16:40:12.009Z'
+        id: 'npm:hawk:20160119'
+        path: debowerify > bower > bower-registry-client > request > hawk
+    - debowerify > bower > insight > request > hawk:
+        patched: '2024-02-20T16:40:12.009Z'
+        id: 'npm:hawk:20160119'
+        path: debowerify > bower > insight > request > hawk
+  'npm:http-signature:20150122':
+    - debowerify > bower > request > http-signature:
+        patched: '2024-02-20T16:40:12.009Z'
+        id: 'npm:http-signature:20150122'
+        path: debowerify > bower > request > http-signature
+    - debowerify > bower > bower-registry-client > request > http-signature:
+        patched: '2024-02-20T16:40:12.009Z'
+        id: 'npm:http-signature:20150122'
+        path: debowerify > bower > bower-registry-client > request > http-signature
+    - debowerify > bower > insight > request > http-signature:
+        patched: '2024-02-20T16:40:12.009Z'
+        id: 'npm:http-signature:20150122'
+        path: debowerify > bower > insight > request > http-signature
+  'npm:mime:20170907':
+    - less > mime:
+        patched: '2024-02-20T16:40:12.009Z'
+        id: 'npm:mime:20170907'
+        path: less > mime
+    - gulp-less > less > mime:
+        patched: '2024-02-20T16:40:12.009Z'
+        id: 'npm:mime:20170907'
+        path: gulp-less > less > mime
+    - debowerify > bower > request > form-data > mime:
+        patched: '2024-02-20T16:40:12.009Z'
+        id: 'npm:mime:20170907'
+        path: debowerify > bower > request > form-data > mime
+    - debowerify > bower > insight > request > form-data > mime:
+        patched: '2024-02-20T16:40:12.009Z'
+        id: 'npm:mime:20170907'
+        path: debowerify > bower > insight > request > form-data > mime
+  'npm:minimatch:20160620':
+    - debowerify > bower > glob > minimatch:
+        patched: '2024-02-20T16:40:12.009Z'
+        id: 'npm:minimatch:20160620'
+        path: debowerify > bower > glob > minimatch
+  'npm:request:20160119':
+    - debowerify > bower > bower-registry-client > request:
+        patched: '2024-02-20T16:40:12.009Z'
+        id: 'npm:request:20160119'
+        path: debowerify > bower > bower-registry-client > request
+    - debowerify > bower > request:
+        patched: '2024-02-20T16:40:12.009Z'
+        id: 'npm:request:20160119'
+        path: debowerify > bower > request
+    - debowerify > bower > insight > request:
+        patched: '2024-02-20T16:40:12.009Z'
+        id: 'npm:request:20160119'
+        path: debowerify > bower > insight > request
+  'npm:shell-quote:20160621':
+    - debowerify > bower > shell-quote:
+        patched: '2024-02-20T16:40:12.009Z'
+        id: 'npm:shell-quote:20160621'
+        path: debowerify > bower > shell-quote
+  'npm:tunnel-agent:20170305':
+    - debowerify > bower > request > tunnel-agent:
+        patched: '2024-02-20T16:40:12.009Z'
+        id: 'npm:tunnel-agent:20170305'
+        path: debowerify > bower > request > tunnel-agent
+    - debowerify > bower > bower-registry-client > request > tunnel-agent:
+        patched: '2024-02-20T16:40:12.009Z'
+        id: 'npm:tunnel-agent:20170305'
+        path: debowerify > bower > bower-registry-client > request > tunnel-agent
+    - debowerify > bower > insight > request > tunnel-agent:
+        patched: '2024-02-20T16:40:12.009Z'
+        id: 'npm:tunnel-agent:20170305'
+        path: debowerify > bower > insight > request > tunnel-agent
+  'npm:uglify-js:20151024':
+    - debowerify > bower > handlebars > uglify-js:
+        patched: '2024-02-20T16:40:12.009Z'
+        id: 'npm:uglify-js:20151024'
+        path: debowerify > bower > handlebars > uglify-js
