@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.54
+boto3==1.34.59
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.54
+botocore==1.34.59
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -76,9 +76,7 @@ cron-descriptor==1.4.3
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
- snyk-fix-6ea05d952e827ddfde10ddaf4859e212
-cryptography==42.0.4=======
-cryptography==42.0.5 99pace
+cryptography==42.0.5
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -98,7 +96,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==4.2.10
+django==4.2.11
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -128,7 +126,7 @@ django-autoslug==1.9.9
     # via -r requirements/pip.txt
 django-cacheops==7.0.2
     # via -r requirements/pip.txt
-django-celery-beat==2.5.0
+django-celery-beat==2.6.0
     # via -r requirements/pip.txt
 django-cors-headers==4.3.1
     # via -r requirements/pip.txt
@@ -144,7 +142,7 @@ django-elasticsearch-dsl==8.0
     # via -r requirements/pip.txt
 django-extensions==3.2.3
     # via -r requirements/pip.txt
-django-filter==23.5
+django-filter==24.1
     # via -r requirements/pip.txt
 django-formtools==2.3
     # via -r requirements/pip.txt
@@ -291,7 +289,7 @@ pyjwt[crypto]==2.8.0
     #   django-allauth
 pyquery==2.0.0
     # via -r requirements/pip.txt
-pytest==8.0.2
+pytest==8.1.1
     # via
     #   -r requirements/testing.in
     #   pytest-cov
