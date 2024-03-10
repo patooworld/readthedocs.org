@@ -135,7 +135,7 @@ BUILD_MESSAGES = [
             """
             ).strip(),
         ),
-        type=ERROR,
+        type=WARNING,
     ),
     Message(
         id=BuildCancelled.CANCELLED_BY_USER,
@@ -183,6 +183,19 @@ BUILD_MESSAGES = [
                 """
             This build was terminated due to excessive memory consumption.
             Read more about <a href="https://docs.readthedocs.io/en/stable/builds.html#build-resources">time and memory limits in our documentation</a>.
+            """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=BuildUserError.VCS_DEPRECATED,
+        header=_("Build used a deprecated VCS is not supported: {{vcs}}."),
+        body=_(
+            textwrap.dedent(
+                """
+                {{vcs}} VCS is not supported anymore.
+                Read more about this in our blog post <a href="https://about.readthedocs.com/blog/2024/02/drop-support-for-subversion-mercurial-bazaar/">Dropping support for Subversion, Mercurial, and Bazaar</a>.
             """
             ).strip(),
         ),
