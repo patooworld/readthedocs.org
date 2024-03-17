@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.54
+boto3==1.34.64
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.54
+botocore==1.34.64
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -70,15 +70,13 @@ click-repl==0.3.0
     # via
     #   -r requirements/pip.txt
     #   celery
-coverage[toml]==7.4.3
+coverage[toml]==7.4.4
     # via pytest-cov
 cron-descriptor==1.4.3
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
- snyk-fix-6ea05d952e827ddfde10ddaf4859e212
-cryptography==42.0.4=======
-cryptography==42.0.5 99pace
+cryptography==42.0.5
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -98,7 +96,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==4.2.10
+django==4.2.11
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -128,7 +126,7 @@ django-autoslug==1.9.9
     # via -r requirements/pip.txt
 django-cacheops==7.0.2
     # via -r requirements/pip.txt
-django-celery-beat==2.5.0
+django-celery-beat==2.6.0
     # via -r requirements/pip.txt
 django-cors-headers==4.3.1
     # via -r requirements/pip.txt
@@ -144,7 +142,7 @@ django-elasticsearch-dsl==8.0
     # via -r requirements/pip.txt
 django-extensions==3.2.3
     # via -r requirements/pip.txt
-django-filter==23.5
+django-filter==24.1
     # via -r requirements/pip.txt
 django-formtools==2.3
     # via -r requirements/pip.txt
@@ -172,7 +170,7 @@ django-timezone-field==6.1.0
     #   django-celery-beat
 django-vanilla-views==3.0.0
     # via -r requirements/pip.txt
-djangorestframework==3.14.0
+djangorestframework==3.15.0
     # via
     #   -r requirements/pip.txt
     #   drf-extensions
@@ -244,11 +242,11 @@ lxml==5.1.0
     # via
     #   -r requirements/pip.txt
     #   pyquery
-markdown==3.5.2
+markdown==3.6
     # via -r requirements/pip.txt
 markupsafe==2.1.5
     # via jinja2
-mercurial==6.6.3
+mercurial==6.7
     # via -r requirements/testing.in
 oauthlib==3.2.2
     # via
@@ -256,7 +254,7 @@ oauthlib==3.2.2
     #   requests-oauthlib
 orjson==3.9.15
     # via -r requirements/pip.txt
-packaging==23.2
+packaging==24.0
     # via
     #   -r requirements/pip.txt
     #   djangorestframework-api-key
@@ -291,7 +289,7 @@ pyjwt[crypto]==2.8.0
     #   django-allauth
 pyquery==2.0.0
     # via -r requirements/pip.txt
-pytest==8.0.2
+pytest==8.1.1
     # via
     #   -r requirements/testing.in
     #   pytest-cov
@@ -324,12 +322,11 @@ pytz==2024.1
     # via
     #   -r requirements/pip.txt
     #   celery
-    #   djangorestframework
 pyyaml==6.0.1
     # via
     #   -r requirements/pip.txt
     #   yamale
-redis==5.0.2
+redis==5.0.3
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
@@ -348,7 +345,7 @@ requests==2.31.0
     #   stripe
 requests-mock==1.11.0
     # via -r requirements/testing.in
-requests-oauthlib==1.3.1
+requests-oauthlib==1.4.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -356,11 +353,11 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rest-framework-generic-relations==2.1.0
     # via -r requirements/pip.txt
-s3transfer==0.10.0
+s3transfer==0.10.1
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.3.20
+selectolax==0.3.21
     # via -r requirements/pip.txt
 six==1.16.0
     # via
@@ -425,7 +422,7 @@ unidecode==1.3.8
     # via
     #   -r requirements/pip.txt
     #   unicode-slugify
-urllib3==2.0.7
+urllib3==2.2.1
     # via
     #   -r requirements/pip.txt
     #   botocore
