@@ -61,11 +61,12 @@ from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
 from .constants import (
+    ADDONS_FLYOUT_SORTING_ALPHABETICALLY,
+    ADDONS_FLYOUT_SORTING_CHOICES,
     DOWNLOADABLE_MEDIA_TYPES,
     MEDIA_TYPES,
     MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
     MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
-    PRIVATE,
     PUBLIC,
 )
 
@@ -172,7 +173,12 @@ class AddonsConfig(TimeStampedModel):
     doc_diff_enabled = models.BooleanField(default=True)
     doc_diff_show_additions = models.BooleanField(default=True)
     doc_diff_show_deletions = models.BooleanField(default=True)
-    doc_diff_root_selector = models.CharField(null=True, blank=True, max_length=128)
+    doc_diff_root_selector = models.CharField(
+        null=True,
+        blank=True,
+        max_length=128,
+        help_text="CSS selector for the main content of the page",
+    )
 
     # External version warning
     external_version_warning_enabled = models.BooleanField(default=True)
@@ -182,6 +188,23 @@ class AddonsConfig(TimeStampedModel):
 
     # Flyout
     flyout_enabled = models.BooleanField(default=True)
+    flyout_sorting = models.CharField(
+        choices=ADDONS_FLYOUT_SORTING_CHOICES,
+        default=ADDONS_FLYOUT_SORTING_ALPHABETICALLY,
+        max_length=64,
+    )
+    flyout_sorting_custom_pattern = models.CharField(
+        max_length=32,
+        default=None,
+        null=True,
+        blank=True,
+        help_text="Sorting pattern supported by BumpVer "
+        '(<a href="https://github.com/mbarkhau/bumpver#pattern-examples">See examples</a>)',
+    )
+    flyout_sorting_latest_stable_at_beginning = models.BooleanField(
+        default=True,
+        help_text="Show <code>latest</code> and <code>stable</code> at the beginning",
+    )
 
     # Hotkeys
     hotkeys_enabled = models.BooleanField(default=True)
@@ -313,17 +336,6 @@ class Project(models.Model):
             'href="https://pip.pypa.io/en/latest/user_guide.html#requirements-files">'
             "pip requirements file</a> needed to build your documentation. "
             "Path from the root of your project.",
-        ),
-    )
-    documentation_type = models.CharField(
-        _("Documentation type"),
-        max_length=20,
-        choices=constants.DOCUMENTATION_CHOICES,
-        default="sphinx",
-        help_text=_(
-            'Type of documentation you are building. <a href="'
-            "http://www.sphinx-doc.org/en/stable/builders.html#sphinx.builders.html."
-            'DirectoryHTMLBuilder">More info on sphinx builders</a>.',
         ),
     )
 
@@ -557,98 +569,22 @@ class Project(models.Model):
         object_id_field="attached_to_id",
     )
 
-    # TODO: remove the following fields since they all are going to be ignored
-    # by the application when we start requiring a ``.readthedocs.yaml`` file.
-    # These fields are:
-    #  - requirements_file
-    #  - documentation_type
-    #  - enable_epub_build
-    #  - enable_pdf_build
-    #  - path
-    #  - conf_py_file
-    #  - install_project
-    #  - python_interpreter
-    #  - use_system_packages
-    requirements_file = models.CharField(
-        _("Requirements file"),
-        max_length=255,
-        default=None,
-        null=True,
-        blank=True,
-        help_text=_(
-            "A <a "
-            'href="https://pip.pypa.io/en/latest/user_guide.html#requirements-files">'
-            "pip requirements file</a> needed to build your documentation. "
-            "Path from the root of your project.",
-        ),
-    )
+    # TODO: remove field ``documentation_type`` when possible.
+    # This field is not used anymore in the application.
+    # However, the APIv3 project details endpoint returns it,
+    # and there are some tests and similars that depend on it still.
     documentation_type = models.CharField(
         _("Documentation type"),
         max_length=20,
         choices=constants.DOCUMENTATION_CHOICES,
-        default="sphinx",
+        default=None,
+        null=True,
+        blank=True,
         help_text=_(
             'Type of documentation you are building. <a href="'
             "http://www.sphinx-doc.org/en/stable/builders.html#sphinx.builders.html."
             'DirectoryHTMLBuilder">More info on sphinx builders</a>.',
         ),
-    )
-    enable_epub_build = models.BooleanField(
-        _("Enable EPUB build"),
-        default=False,
-        help_text=_(
-            "Create a EPUB version of your documentation with each build.",
-        ),
-    )
-    enable_pdf_build = models.BooleanField(
-        _("Enable PDF build"),
-        default=False,
-        help_text=_(
-            "Create a PDF version of your documentation with each build.",
-        ),
-    )
-    path = models.CharField(
-        _("Path"),
-        max_length=255,
-        editable=False,
-        help_text=_(
-            "The directory where <code>conf.py</code> lives",
-        ),
-    )
-    conf_py_file = models.CharField(
-        _("Python configuration file"),
-        max_length=255,
-        default="",
-        blank=True,
-        help_text=_(
-            "Path from project root to <code>conf.py</code> file "
-            "(ex. <code>docs/conf.py</code>). "
-            "Leave blank if you want us to find it for you.",
-        ),
-    )
-    install_project = models.BooleanField(
-        _("Install Project"),
-        help_text=_(
-            "Install your project inside a virtualenv using <code>setup.py "
-            "install</code>",
-        ),
-        default=False,
-    )
-    python_interpreter = models.CharField(
-        _("Python Interpreter"),
-        max_length=20,
-        choices=constants.PYTHON_CHOICES,
-        default="python3",
-        help_text=_(
-            "The Python interpreter used to create the virtual environment.",
-        ),
-    )
-    use_system_packages = models.BooleanField(
-        _("Use system packages"),
-        help_text=_(
-            "Give the virtual environment access to the global site-packages dir.",
-        ),
-        default=False,
     )
 
     # Property used for storing the latest build for a project when prefetching
@@ -670,9 +606,11 @@ class Project(models.Model):
                     _("Model must have slug")
                 )
 
-        if self.remote_repository:
-            privacy_level = PRIVATE if self.remote_repository.private else PUBLIC
-            self.external_builds_privacy_level = privacy_level
+        # If the project is linked to a remote repository,
+        # and the repository is public, we force the privacy level of
+        # pull requests previews to be public, see GHSA-pw32-ffxw-68rh.
+        if self.remote_repository and not self.remote_repository.private:
+            self.external_builds_privacy_level = PUBLIC
 
         super().save(*args, **kwargs)
 
@@ -961,18 +899,6 @@ class Project(models.Model):
 
     def conf_file(self, version=LATEST):
         """Find a Sphinx ``conf.py`` file in the project checkout."""
-        if self.conf_py_file:
-            conf_path = os.path.join(
-                self.checkout_path(version),
-                self.conf_py_file,
-            )
-
-            if os.path.exists(conf_path):
-                log.info("Inserting conf.py file path from model")
-                return conf_path
-
-            log.warning("Conf file specified on model doesn't exist")
-
         files = self.find("conf.py", version)
         if not files:
             files = self.full_find("conf.py", version)
