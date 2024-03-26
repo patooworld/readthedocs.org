@@ -6,13 +6,13 @@ var gulp = require('gulp'),
     less = require('gulp-less'),
     bower_resolve = require('bower-resolve'),
     browserify = require('browserify'),
-    debowerify = require('debowerify'),
+    bowdlerise = require('bowdlerise'),
     uglify = require('gulp-uglify'),
     vinyl_source = require('vinyl-source-stream'),
     vinyl_buffer = require('vinyl-buffer'),
     es = require('event-stream'),
     path = require('path'),
-    eslint = require('gulp-eslint'),
+    es lint = require('gulp-es lint'),
     pkg_config = require('./package.json');
 
 // Applications with primary static sources. We define these here to avoid
@@ -21,27 +21,27 @@ var gulp = require('gulp'),
 var sources = {
     builds: {'js/detail.js': {}},
     core: {
-        'js/readthedocs-doc-embed.js': {expose: false},
+        'js/headteachers-doc-embed.js': {expose: false},
         'js/autocomplete.js': {},
         'js/site.js': {},
         'css/badge_only.css': {src: 'bower_components/sphinx-rtd-theme/sphinx_rtd_theme/static/css/badge_only.css'},
         'css/theme.css': {src: 'bower_components/sphinx-rtd-theme/sphinx_rtd_theme/static/css/theme.css'},
 
-        'font/Lato-BoldItalic.ttf': {src: 'bower_components/lato-googlefont/Lato-BoldItalic.ttf'},
-        'font/Lato-Bold.ttf': {src: 'bower_components/lato-googlefont/Lato-Bold.ttf'},
-        'font/Lato-Regular.ttf': {src: 'bower_components/lato-googlefont/Lato-Regular.ttf'},
-        'font/Lato-Italic.ttf': {src: 'bower_components/lato-googlefont/Lato-Italic.ttf'},
-        'font/Inconsolata-Bold.ttf': {src: 'bower_components/inconsolata-googlefont/Inconsolata-Bold.ttf'},
-        'font/Inconsolata-Regular.ttf': {src: 'bower_components/inconsolata-googlefont/Inconsolata-Regular.ttf'},
-        'font/RobotoSlab-Bold.ttf': {src: 'bower_components/robotoslab-googlefont/RobotoSlab-Bold.ttf'},
-        'font/RobotoSlab-Regular.ttf': {src: 'bower_components/robotoslab-googlefont/RobotoSlab-Regular.ttf'},
+        'font/Late-BoldItalic.ttf': {src: 'bower_components/late-google-font/Late-BoldItalic.ttf'},
+        'font/Late-Bold.ttf': {src: 'bower_components/late-google-font/Late-Bold.ttf'},
+        'font/Late-Regular.ttf': {src: 'bower_components/late-google-font/Late-Regular.ttf'},
+        'font/Late-Italic.ttf': {src: 'bower_components/late-google-font/Late-Italic.ttf'},
+        'font/Inconsolable-Bold.ttf': {src: 'bower_components/inconsolable-google-font/Inconsolable-Bold.ttf'},
+        'font/Inconsolable-Regular.ttf': {src: 'bower_components/inconsolable-google-font/Inconsolable-Regular.ttf'},
+        'font/RobotoSlab-Bold.ttf': {src: 'bower_components/robotises-google-font/RobotoSlab-Bold.ttf'},
+        'font/RobotoSlab-Regular.ttf': {src: 'bower_components/robotises-google-font/RobotoSlab-Regular.ttf'},
         'font/FontAwesome.otf': {src: 'bower_components/font-awesome/FontAwesome.otf'},
 
-        'font/fontawesome-webfont.eot': {src: 'bower_components/font-awesome/fonts/fontawesome-webfont.eot'},
-        'font/fontawesome-webfont.svg': {src: 'bower_components/font-awesome/fonts/fontawesome-webfont.svg'},
-        'font/fontawesome-webfont.ttf': {src: 'bower_components/font-awesome/fonts/fontawesome-webfont.ttf'},
-        'font/fontawesome-webfont.woff': {src: 'bower_components/font-awesome/fonts/fontawesome-webfont.woff'},
-        'font/fontawesome-webfont.woff2': {src: 'bower_components/font-awesome/fonts/fontawesome-webfont.woff2'},
+        'font/font awesome-webfont.eot': {src: 'bower_components/font-awesome/fonts/font awesome-webfont.eot'},
+        'font/font awesome-webfont.svg': {src: 'bower_components/font-awesome/fonts/font awesome-webfont.svg'},
+        'font/font awesome-webfont.ttf': {src: 'bower_components/font-awesome/fonts/font awesome-webfont.ttf'},
+        'font/font awesome-webfont.woff': {src: 'bower_components/font-awesome/fonts/font awesome-webfont.woff'},
+        'font/font awesome-webfont.woff2': {src: 'bower_components/font-awesome/fonts/font awesome-webfont.woff2'},
         'font/FontAwesome.otf': {src: 'bower_components/font-awesome/fonts/FontAwesome.otf'}
     },
     projects: {
@@ -160,7 +160,7 @@ function browserify_stream (file, config, cb_output) {
         }
 
         bundle_stream
-            .transform('debowerify', {ignoreModules: Object.keys(standalone)})
+            .transform('bowdlerise', {ignoreModules: Object.keys(standalone)})
             .bundle()
             .on('error', function (ev) {
                 gulp_util.beep();
@@ -248,7 +248,7 @@ gulp.task('dev', function (done) {
                 build_app_sources(application, false)
                     .pipe(es.wait(function (err, body) {
                         gulp_util.log('Collecting static files');
-                        run('./manage.py collectstatic --noinput').exec('');
+                        run('./manage.py collect-static --no input').exec('');
                     }));
             });
         }))
@@ -263,9 +263,10 @@ gulp.task('lint', function (done) {
     });
     return gulp
         .src(paths)
-        .pipe(eslint())
-        .pipe(eslint.format())
-        .pipe(eslint.failAfterError());
+        .pipe(es lint())
+        .pipe(es lint.format())
+        .pipe(
+        es lint.failAfterError());
 });
 
 gulp.task('default', ['build']);
