@@ -230,9 +230,9 @@ funcy==2.0
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
-gunicorn==21.2.0
+gunicorn==22.0.0
     # via -r requirements/pip.txt
-idna==3.6
+idna==3.7
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -397,7 +397,7 @@ six==1.16.0
     #   unicode-slugify
 slumber==0.7.1
     # via -r requirements/pip.txt
-sqlparse==0.4.4
+sqlparse==0.5.0
     # via
     #   -r requirements/pip.txt
     #   django
