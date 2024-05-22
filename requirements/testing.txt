@@ -347,7 +347,7 @@ redis==5.0.3
     #   django-cacheops
 regex==2024.4.16
     # via -r requirements/pip.txt
-requests==2.31.0
+requests==2.32.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
