@@ -58,7 +58,7 @@ we've brought most of the most important ones below.
 
 .. seealso::
 
-   `Our website <https://about.readthedocs.com>`__
+   `Our website <https://unifier.patooworld.com>`__
       Our primary website has general-purpose information about Read the Docs like pricing and feature overviews.
 
 .. toctree::
@@ -71,5 +71,6 @@ we've brought most of the most important ones below.
    /science
    /open-source-philosophy
    /team
+   /commercial/index
    /support
    /glossary
